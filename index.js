@@ -1,4 +1,3 @@
-const { token } = require('./settings');
 const Discord = require('discord.js');
 const client = new Discord.Client();
 
