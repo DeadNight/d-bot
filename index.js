@@ -27,7 +27,7 @@ client.login(process.env.token)
 let inMemStore = {};
 
 function handleStart(msg) {
-  if(mag.content.length <= '!host start '.length) {
+  if(msg.content.length <= '!host start '.length) {
     msg.reply('set a description with `!host start [description]`');
   } else {
     inMemStore[msg.author.id] = msg.content.substring('!host start '.length);
