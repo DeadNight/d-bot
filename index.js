@@ -55,7 +55,7 @@ function handleUp(msg) {
 
 function handleEnd(msg) {
   if(inMemStore[msg.author.id]) {
-    msg.reply(`stopped hosting `${inMemStore[msg.author.id]}`);
+    msg.reply(`stopped hosting ${inMemStore[msg.author.id]}`);
     inMemStore[msg.author.id] = undefined;
   } else {
     msg.reply('not hosting at the moment');
