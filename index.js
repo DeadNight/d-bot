@@ -5,7 +5,7 @@ client.on('ready', () => {
   console.log(`Logged in as ${client.user.tag}!`);
 });
 
-const help = 'I suppor the following commands:\n'
+const help = 'I support the following commands:\n'
   + '!host start [description] - start hosting\n'
   + '!host up [code] - notify raid is up with optional code\n'
   + '!host end - stop hosting\n'
