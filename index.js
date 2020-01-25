@@ -27,31 +27,23 @@ client.login(process.env.token)
 let inMemStore = {};
 
 function handleStart(msg) {
-  if(inMemStore[msg.author.id]) {
-    msg.reply('already hosting ' + inMemStore[msg.author.id] + '\n'
-      + 'stop hosting with !host end');
+  if(mag.content.length <= '!host start '.length) {
+    msg.reply('set a description with `!host start [description]`');
   } else {
-    let description = inMemStore[msg.author.id] = msg.content.substring('!host start '.length);
-    if(description) {
-      inMemStore[msg.author.id] = description;
-      msg.reply('started hosting ' + description);
-    } else {
-      msg.reply('add a description with `!host start [description]`');
-    }
+    inMemStore[msg.author.id] = msg.content.substring('!host start '.length);
+    msg.reply('started hosting ' + inMemStore[msg.author.id]);
   }
 }
 
 function handleUp(msg) {
   if(inMemStore[msg.author.id]) {
-    let code = msg.content.substring('!host up '.length);
     let reply = '' + msg.author + ' now hosting ' + inMemStore[msg.author.id];
 
-    if(code.length) {
-      msg.channel.send(reply + '\n'
-        + 'code: ' + code);
-    } else {
-      msg.channel.send(reply);
+    if(msg.content.length > '!host up '.length) {
+      reply += '\ncode: ' + msg.content.substring('!host up '.length);
     }
+
+    msg.channel.send(reply);
   } else {
     msg.reply('not hosting at the moment\n'
       + 'start hosting with `!host start [description]`');
