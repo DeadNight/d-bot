@@ -12,6 +12,6 @@ client.on('message', msg => {
   }
 });
 
-client.login(token)
+client.login(process.env.token)
  .catch(console.error);
 
