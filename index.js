@@ -66,7 +66,7 @@ function handleUp(code, msg) {
     if(code) {
       response += `\ncode: ${msg.content.substring('!host up '.length)}`;
     } else {
-      += '\nno code';
+      response += '\nno code';
     }
 
     msg.channel.send(response);
