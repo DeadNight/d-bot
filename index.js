@@ -28,20 +28,20 @@ client.on('message', msg => {
 client.login(process.env.token)
  .catch(console.error);
 
-let inMemStore = {};
+let inMemStore = new Map();
 
 function handleStart(msg) {
   if(msg.content.length <= '!host start '.length) {
     msg.reply('set a description with `!host start [description]`');
   } else {
-    inMemStore[msg.author.id] = msg.content.substring('!host start '.length);
-    msg.reply(`started hosting ${inMemStore[msg.author.id]}`);
+    inMemStoret(msg.author.id, msg.content.substring('!host start '.length));
+    msg.reply(`started hosting ${inMemStore.get(msg.author.id)}`);
   }
 }
 
 function handleUp(msg) {
-  if(inMemStore[msg.author.id]) {
-    let response = `${msg.member.displayName} is now hosting ${inMemStore[msg.author.id]}`;
+  if(inMemStore.has(msg.author.id)) {
+    let response = `${msg.member.displayName} is now hosting ${inMemStore.get(msg.author.id)}`;
 
     if(msg.content.length > '!host up '.length) {
       response += `\ncode: ${msg.content.substring('!host up '.length)}`;
@@ -55,22 +55,20 @@ function handleUp(msg) {
 }
 
 function handleEnd(msg) {
-  if(inMemStore[msg.author.id]) {
-    msg.reply(`stopped hosting ${inMemStore[msg.author.id]}`);
-    inMemStore[msg.author.id] = undefined;
+  if(inMemStore.has(msg.author.id)) {
+    msg.reply(`stopped hosting ${inMemStore.get(msg.author.id)}`);
+    inMemStore.delete(msg.author.id);
   } else {
     msg.reply('not hosting at the moment');
   }
 }
 
 function handleList(msg) {
-  if(Object.keys(inMemStore).length) {
+  if(inMemStore.size) {
     let list = 'current raids:';
 
-    for (let [key, value] of Object.entries(inMemStore)) {
-      if(value) {
-        list += `\n${msg.guild.members.get(key).displayName} is hosting ${value}`;
-      }
+    for (let [key, value] of inMemStore.entries) {
+      list += `\n${msg.guild.members.get(key).displayName} is hosting ${value}`;
     }
 
     msg.reply(list);
