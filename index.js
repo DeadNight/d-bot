@@ -52,7 +52,7 @@ let inMemStore = new Map();
 
 function handleStart(description, msg) {
   if(description) {
-    inMemStoret(msg.author.id, msg.content.substring('!host start '.length));
+    inMemStore.set(msg.author.id, description);
     msg.reply(`started hosting ${inMemStore.get(msg.author.id)}`);
   } else {
     msg.reply('set a description with `!host start [description]`');
@@ -64,7 +64,7 @@ function handleUp(code, msg) {
     let response = `${msg.member.displayName} is now hosting ${inMemStore.get(msg.author.id)}`;
 
     if(code) {
-      response += `\ncode: ${msg.content.substring('!host up '.length)}`;
+      response += `\ncode: ${code}`;
     } else {
       response += '\nno code';
     }
