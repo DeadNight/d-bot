@@ -5,7 +5,8 @@ client.on('ready', () => {
   console.log(`Logged in as ${client.user.tag}!`);
 });
 
-const help = '!host start [description] - start hosting\n'
+const help = 'I suppor the following commands:\n'
+  + '!host start [description] - start hosting\n'
   + '!host up [code] - notify raid is up with optional code\n'
   + '!host end - stop hosting\n'
   + '!host list - list current hosts';
@@ -67,7 +68,7 @@ function handleList(msg) {
     let list = 'current raids:';
 
     for (let [key, value] of Object.entries(inMemStore)) {
-      list += `\n${key} is hosting ${value}`;
+      list += `\n${msg.guild.members.get(key).name} is hosting ${value}`;
     }
 
     msg.reply(list);
