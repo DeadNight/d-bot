@@ -41,7 +41,7 @@ function handleStart(msg) {
 
 function handleUp(msg) {
   if(inMemStore[msg.author.id]) {
-    let response = `${msg.author} is now hosting ${inMemStore[msg.author.id]}`;
+    let response = `${msg.member.displayName} is now hosting ${inMemStore[msg.author.id]}`;
 
     if(msg.content.length > '!host up '.length) {
       response += `\ncode: ${msg.content.substring('!host up '.length)}`;
@@ -68,7 +68,7 @@ function handleList(msg) {
     let list = 'current raids:';
 
     for (let [key, value] of Object.entries(inMemStore)) {
-      list += `\n${msg.guild.members.get(key).name} is hosting ${value}`;
+      list += `\n${msg.guild.members.get(key).displayName} is hosting ${value}`;
     }
 
     msg.reply(list);
