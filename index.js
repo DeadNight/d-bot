@@ -5,23 +5,43 @@ client.on('ready', () => {
   console.log(`Logged in as ${client.user.tag}!`);
 });
 
-const help = 'I support the following commands:\n'
-  + '!host start [description] - start hosting\n'
-  + '!host up [code] - notify raid is up with optional code\n'
-  + '!host end - stop hosting\n'
-  + '!host list - list current hosts';
+const help = 'I support the following commands:'
+  + '\n!host start [description] - start hosting'
+  + '\n!host up [code] - notify raid is up with optional code'
+  + '\n!host end - stop hosting'
+  + '\n!host list - list current hosts';
 
 client.on('message', msg => {
-  if (msg.content === '!host help') {
-    msg.reply(help);
-  } else if(msg.content.startsWith('!host start')) {
-    handleStart(msg);
-  } else if(msg.content.startsWith('!host up')) {
-    handleUp(msg);
-  } else if(msg.content === '!host end') {
-    handleEnd(msg);
-  } else if(msg.content === '!host list') {
-    handleList(msg);
+  if(msg.content.startsWith('!h')) {
+    let cmd = msg.content.split(' ', 3);
+    
+    if(cmd[0] == '!h' || cmd[0] == '!host') {
+      switch(cmd[1]) {
+        case undefined:
+        case 'help':
+          msg.reply(help);
+          break;
+
+        case 'start':
+          handleStart(cmd[2], msg);
+          break;
+
+        case 'up':
+          handleUp(cmd[2], msg);
+          break;
+
+        case 'end':
+          handleEnd(msg);
+          break;
+
+        case 'list':
+          handleList(msg);
+          break;
+
+        default:
+          msg.reply(`unsupported command, ${help}`);
+      }
+    }
   }
 });
 
@@ -30,21 +50,23 @@ client.login(process.env.token)
 
 let inMemStore = new Map();
 
-function handleStart(msg) {
-  if(msg.content.length <= '!host start '.length) {
-    msg.reply('set a description with `!host start [description]`');
-  } else {
+function handleStart(description, msg) {
+  if(description) {
     inMemStoret(msg.author.id, msg.content.substring('!host start '.length));
     msg.reply(`started hosting ${inMemStore.get(msg.author.id)}`);
+  } else {
+    msg.reply('set a description with `!host start [description]`');
   }
 }
 
-function handleUp(msg) {
+function handleUp(code, msg) {
   if(inMemStore.has(msg.author.id)) {
     let response = `${msg.member.displayName} is now hosting ${inMemStore.get(msg.author.id)}`;
 
-    if(msg.content.length > '!host up '.length) {
+    if(code) {
       response += `\ncode: ${msg.content.substring('!host up '.length)}`;
+    } else {
+      += '\nno code';
     }
 
     msg.channel.send(response);
