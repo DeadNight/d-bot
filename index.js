@@ -1,6 +1,5 @@
 const Discord = require('discord.js');
 const client = new Discord.Client();
-const { EOL } = require('os');
 
 client.on('ready', () => {
   console.log(`Logged in as ${client.user.tag}!`);
@@ -32,8 +31,13 @@ function handleStart(msg) {
     msg.reply('already hosting ' + inMemStore[msg.author.id] + '\n'
       + 'stop hosting with !host end');
   } else {
-    inMemStore[msg.author.id] = msg.content.substring('!host start '.length);
-    msg.reply('started hosting ' + description);
+    let description = inMemStore[msg.author.id] = msg.content.substring('!host start '.length);
+    if(description) {
+      inMemStore[msg.author.id] = description;
+      msg.reply('started hosting ' + description);
+    } else {
+      msg.reply('add a description with `!host start [description]`');
+    }
   }
 }
 
