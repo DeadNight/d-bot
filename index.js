@@ -7,7 +7,8 @@ client.on('ready', () => {
 
 const help = '!host start [description] - start hosting\n'
   + '!host up [code] - notify raid is up with optional code\n'
-  + '!host end - stop hosting';
+  + '!host end - stop hosting\n'
+  + '!host list - list current hosts';
 
 client.on('message', msg => {
   if (msg.content === '!host help') {
@@ -18,6 +19,8 @@ client.on('message', msg => {
     handleUp(msg);
   } else if(msg.content === '!host end') {
     handleEnd(msg);
+  } else if(msg.content === '!host list') {
+    handleList(msg);
   }
 });
 
@@ -31,19 +34,19 @@ function handleStart(msg) {
     msg.reply('set a description with `!host start [description]`');
   } else {
     inMemStore[msg.author.id] = msg.content.substring('!host start '.length);
-    msg.reply('started hosting ' + inMemStore[msg.author.id]);
+    msg.reply(`started hosting ${inMemStore[msg.author.id]}`);
   }
 }
 
 function handleUp(msg) {
   if(inMemStore[msg.author.id]) {
-    let reply = '' + msg.author + ' now hosting ' + inMemStore[msg.author.id];
+    let response = `${msg.author} is now hosting ${inMemStore[msg.author.id]}`;
 
     if(msg.content.length > '!host up '.length) {
-      reply += '\ncode: ' + msg.content.substring('!host up '.length);
+      response += `\ncode: ${msg.content.substring('!host up '.length)}`;
     }
 
-    msg.channel.send(reply);
+    msg.channel.send(response);
   } else {
     msg.reply('not hosting at the moment\n'
       + 'start hosting with `!host start [description]`');
@@ -52,10 +55,24 @@ function handleUp(msg) {
 
 function handleEnd(msg) {
   if(inMemStore[msg.author.id]) {
-    msg.reply('stopped hosting ' + inMemStore[msg.author.id]);
+    msg.reply(`stopped hosting `${inMemStore[msg.author.id]}`);
     inMemStore[msg.author.id] = undefined;
   } else {
     msg.reply('not hosting at the moment');
+  }
+}
+
+function handleList(msg) {
+  if(Object.keys(inMemStore).length) {
+    let list = 'current raids:';
+
+    for (let [key, value] of Object.entries(inMemStore)) {
+      list += `\n${key} is hosting ${value}`;
+    }
+
+    msg.reply(list);
+  } else {
+    msg.reply('nobody is hosting at the moment');
   }
 }
 
