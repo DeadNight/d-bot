@@ -13,10 +13,10 @@ const help = 'I support the following commands:'
 
 client.on('message', msg => {
   if(msg.content.startsWith('!h')) {
-    let cmd = msg.content.split(' ', 3);
+    let [prefix, cmd, params] = msg.content.split(' ', 3);
     
-    if(cmd[0] == '!h' || cmd[0] == '!host') {
-      switch(cmd[1]) {
+    if(prefix == '!h' || prefix == '!host') {
+      switch(cmd) {
         case undefined:
         case 'h':
         case 'help':
@@ -26,12 +26,12 @@ client.on('message', msg => {
         case 's':
         case 'set':
         case 'start':
-          handleStart(cmd[2], msg);
+          handleStart(params, msg);
           break;
 
         case 'u':
         case 'up':
-          handleUp(cmd[2], msg);
+          handleUp(params, msg);
           break;
 
         case 'e':
