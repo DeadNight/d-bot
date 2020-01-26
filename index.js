@@ -13,12 +13,12 @@ const help = 'I support the following commands:'
 
 client.on('message', msg => {
   if(msg.content.startsWith('!h')) {
-    let [prefix, cmd, params] = msg.content.split(' ', 3);
+    let [prefix, cmd, ...params] = msg.content.split(' ');
     
     if(prefix === '!h' || prefix === '!host') {
       if(cmd === 'test') {
         if(profile === 'dev') {
-          [cmd, params] = params.split(' ', 2);
+          cmd = params.splice(0, 1)[0];
         } else {
           return;
         }
@@ -34,12 +34,12 @@ client.on('message', msg => {
         case 's':
         case 'set':
         case 'start':
-          handleStart(params, msg);
+          handleStart(params.join(' '), msg);
           break;
 
         case 'u':
         case 'up':
-          handleUp(params, msg);
+          handleUp(params.join(' '), msg);
           break;
 
         case 'e':
