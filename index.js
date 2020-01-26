@@ -3,7 +3,7 @@ const { MongoClient } = require('mongodb');
 
 const client = new Discord.Client();
 
-const dbClient = new MongoClient(`tcp://${encodeURIComponent(process.env.MONGODB_USER)}:${encodeURIComponent(process.env.MONGODB_PASSWORD)}@${process.env.MONGODB_SERVICE_HOST}:${process.env.MONGODB_SERVICE_PORT}/?authMechanism=DEFAULT&authSource=${process.env.MONGODB_DATABASE}`
+const dbClient = new MongoClient(`mongodb://${encodeURIComponent(process.env.MONGODB_USER)}:${encodeURIComponent(process.env.MONGODB_PASSWORD)}@${process.env.MONGODB_SERVICE_HOST}:${process.env.MONGODB_SERVICE_PORT}/?authMechanism=DEFAULT&authSource=${process.env.MONGODB_DATABASE}`
                               , { useUnifiedTopology: true });
 
 client.on('ready', () => {
