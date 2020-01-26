@@ -59,16 +59,18 @@ let inMemStore = new Map();
 
 function handleStart(description, msg) {
   if(description) {
-    inMemStore.set(msg.author.id, description);
-    reply(`started hosting ${inMemStore.get(msg.author.id)}`, msg);
+    let key = getKey(msg.member);
+    inMemStore.set(key, description);
+    reply(`started hosting ${inMemStore.get(key)}`, msg);
   } else {
     reply('set a description with `!host start [description]`', msg);
   }
 }
 
 function handleUp(code, msg) {
-  if(inMemStore.has(msg.author.id)) {
-    let response = `${msg.member.displayName} is now hosting ${inMemStore.get(msg.author.id)}`;
+  let key = getKey(msg.member);
+  if(inMemStore.has(key)) {
+    let response = `${msg.member.displayName} is now hosting ${inMemStore.get(key)}`;
 
     if(code) {
       response += `\ncode: ${code}`;
@@ -83,9 +85,10 @@ function handleUp(code, msg) {
 }
 
 function handleEnd(msg) {
-  if(inMemStore.has(msg.author.id)) {
-    reply(`stopped hosting ${inMemStore.get(msg.author.id)}`, msg);
-    inMemStore.delete(msg.author.id);
+  let key = getKey(msg.member);
+  if(inMemStore.has(key)) {
+    reply(`stopped hosting ${inMemStore.get(key)}`, msg);
+    inMemStore.delete(key);
   } else {
     reply('not hosting at the moment', msg);
   }
@@ -95,14 +98,20 @@ function handleList(msg) {
   if(inMemStore.size) {
     let list = 'current raids:';
 
-    inMemStore.forEach((value, key) => {
-      list += `\n${msg.guild.members.get(key).displayName} is hosting ${value}`;
+    inMemStore.forEach((description, key) => {
+      if(msg.guild.id == key.guildId) {
+        list += `\n${msg.guild.members.get(key.memberId).displayName} is hosting ${value}`;
+      }
     });
 
     reply(list, msg);
   } else {
     reply('nobody is hosting at the moment', msg);
   }
+}
+
+function getKey(member) {
+  return { guildId: member.guild.id, memberId: member.id };
 }
 
 function reply(response, msg) {
