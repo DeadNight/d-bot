@@ -98,7 +98,8 @@ function handleList(msg) {
   if(inMemStore.size) {
     let list = 'current raids:';
 
-    inMemStore.forEach((description, key) => {
+    inMemStore.forEach((description, keyStr) => 
+      val key = JSON.parse(keyStr);
       if(msg.guild.id == key.guildId) {
         list += `\n${msg.guild.members.get(key.memberId).displayName} is hosting ${description}`;
       }
@@ -111,7 +112,7 @@ function handleList(msg) {
 }
 
 function getKey(member) {
-  return { guildId: member.guild.id, memberId: member.id };
+  return JSNO.stringify({ guildId: member.guild.id, memberId: member.id });
 }
 
 function reply(response, msg) {
