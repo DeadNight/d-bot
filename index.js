@@ -54,7 +54,7 @@ client.on('message', msg => {
           break;
           
         case 'dbtest':
-          MongoClient.connect(`mongodb://${encodeURIComponent(process.env['database-user'])}:${encodeURIComponent(process.env['database-password'])}@172.30.133.64:27017/?authMechanism=DEFAULT`, function(err, client) {
+          MongoClient.connect(`mongodb://${encodeURIComponent(process.env['database-user'])}:${encodeURIComponent(process.env['database-password'])}@${process.env.MONGODB_SERVICE_HOST}:${process.env.MONGODB_SERVICE_PORT}/?authMechanism=DEFAULT`, function(err, client) {
             if(err) {
               console.error(err);
             } else {
