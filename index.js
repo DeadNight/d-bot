@@ -89,7 +89,7 @@ function handleList(msg) {
   if(inMemStore.size) {
     let list = 'current raids:';
 
-    inMemStore.entries.forEach((key, value) => {
+    inMemStore.forEach((key, value) => {
       list += `\n${msg.guild.members.get(key).displayName} is hosting ${value}`;
     });
 
