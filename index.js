@@ -61,7 +61,10 @@ client.on('message', msg => {
               console.log("Connected successfully to db");
               const db = client.db(process.env['database-name']);
             }
-            client.close();
+            
+            if(client) {
+              client.close();
+            }
           });
           break;
 
