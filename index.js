@@ -15,7 +15,16 @@ client.on('message', msg => {
   if(msg.content.startsWith('!h')) {
     let [prefix, cmd, params] = msg.content.split(' ', 3);
     
-    if(prefix == '!h' || prefix == '!host') {
+    if(prefix === '!h' || prefix === '!host') {
+      if(cmd === 'test') {
+        if(profile === 'dev') {
+          let t;
+          [t, cmd, params] = cmd.split(' ');
+        } else {
+          return;
+        }
+      }
+      
       switch(cmd) {
         case undefined:
         case 'h':
@@ -124,7 +133,7 @@ function reply(response, msg) {
 }
 
 function send(response, msg) {
-  if(profile == 'prod') {
+  if(profile === 'prod') {
     msg.channel.reply(response);
   } else {
     console.log(`${msg.member.displayName}:\n${msg.content}\nd-bot:\n${response}`);
