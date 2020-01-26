@@ -18,8 +18,7 @@ client.on('message', msg => {
     if(prefix === '!h' || prefix === '!host') {
       if(cmd === 'test') {
         if(profile === 'dev') {
-          let t;
-          [t, cmd, params] = cmd.split(' ');
+          [cmd, params] = params.split(' ', 2);
         } else {
           return;
         }
