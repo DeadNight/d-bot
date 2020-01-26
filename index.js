@@ -133,7 +133,7 @@ function reply(response, msg) {
 
 function send(response, msg) {
   if(profile === 'prod') {
-    msg.channel.reply(response);
+    msg.channel.send(response);
   } else {
     console.log(`${msg.member.displayName}:\n${msg.content}\nd-bot:\n${response}`);
   }
