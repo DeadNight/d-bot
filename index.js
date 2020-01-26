@@ -51,6 +51,18 @@ client.on('message', msg => {
         case 'list':
           handleList(msg);
           break;
+          
+        case 'dbtest':
+          MongoClient.connect(`mongodb://${encodeURIComponent(process.env['database-user'])}:${encodeURIComponent(process.env['database-password'])}@172.30.133.64:27017/?authMechanism=DEFAULT`, function(err, client) {
+            if(err) {
+              console.error(err);
+            } else {
+              console.log("Connected successfully to db");
+              const db = client.db(process.env['database-name']);
+            }
+            client.close();
+          });
+          break;
 
         default:
           reply(`unsupported command, ${help}`, msg);
