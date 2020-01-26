@@ -54,12 +54,12 @@ client.on('message', msg => {
           break;
           
         case 'dbtest':
-          MongoClient.connect(`mongodb://${encodeURIComponent(process.env['database-user'])}:${encodeURIComponent(process.env['database-password'])}@${process.env.MONGODB_SERVICE_HOST}:${process.env.MONGODB_SERVICE_PORT}/?authMechanism=DEFAULT`, function(err, client) {
+          MongoClient.connect(`mongodb://${encodeURIComponent(process.env.MONGODB_USER)}:${encodeURIComponent(process.env.MONGODB_PASSWORD)}@${process.env.MONGODB_SERVICE_HOST}:${process.env.MONGODB_SERVICE_PORT}/?authMechanism=DEFAULT`, function(err, client) {
             if(err) {
               console.error(err);
             } else {
               console.log("Connected successfully to db");
-              const db = client.db(process.env['database-name']);
+              const db = client.db(process.env.MONGODB_DATABASE);
             }
             
             if(client) {
