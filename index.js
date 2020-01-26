@@ -3,8 +3,7 @@ const { MongoClient } = require('mongodb');
 
 const client = new Discord.Client();
 
-const dbClient = new MongoClient(`mongodb://${encodeURIComponent(process.env.MONGODB_USER)}:${encodeURIComponent(process.env.MONGODB_PASSWORD)}@${process.env.MONGODB_SERVICE_HOST}:${process.env.MONGODB_SERVICE_PORT}/?authMechanism=DEFAULT&authSource=${process.env.MONGODB_DATABASE}`
-                              , { useUnifiedTopology: true });
+const dbClient = new MongoClient(`mongodb://${process.env.MONGODB_SERVICE_HOST}:${process.env.MONGODB_SERVICE_PORT}`);
 
 client.on('ready', () => {
   console.log(`Logged in as ${client.user.tag}!`);
@@ -62,7 +61,7 @@ client.on('message', msg => {
             if(err) {
               console.error(err);
             } else {
-              console.log("Connected successfully to db");
+              reply('Connected successfully to db', msg);
               const db = dbClient.db(process.env.MONGODB_DATABASE);
             
               dbClient.close();
