@@ -118,7 +118,7 @@ function reply(response, msg) {
   if(profile == 'prod') {
     msg.reply(response);
   } else {
-    console.log(`${msg.member.displayName}:\n${msg.content}\nd-bot:\n${msg.member.displayName}, ${response}`);
+    console.log(`${msg.member.displayName}:\n${msg.content}\nd-bot:\n@${msg.member.displayName}, ${response}`);
   }
 }
 
