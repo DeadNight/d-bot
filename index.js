@@ -107,7 +107,7 @@ function handleList(msg) {
     let list = 'current raids:';
 
     inMemStore.forEach((description, keyStr) => 
-      val key = JSON.parse(keyStr);
+      let key = JSON.parse(keyStr);
       if(msg.guild.id == key.guildId) {
         list += `\n${msg.guild.members.get(key.memberId).displayName} is hosting ${description}`;
       }
