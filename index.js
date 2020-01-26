@@ -1,6 +1,10 @@
 const Discord = require('discord.js');
-const client = new Discord.Client();
 const { MongoClient } = require('mongodb');
+
+const client = new Discord.Client();
+
+const dbClient = new MongoClient(`mongodb://${encodeURIComponent(process.env.MONGODB_USER)}:${encodeURIComponent(process.env.MONGODB_PASSWORD)}@${process.env.MONGODB_SERVICE_HOST}:${process.env.MONGODB_SERVICE_PORT}/?authMechanism=DEFAULT`
+                              , { useUnifiedTopology: true });
 
 client.on('ready', () => {
   console.log(`Logged in as ${client.user.tag}!`);
@@ -54,16 +58,14 @@ client.on('message', msg => {
           break;
           
         case 'dbtest':
-          MongoClient.connect(`mongodb://${encodeURIComponent(process.env.MONGODB_USER)}:${encodeURIComponent(process.env.MONGODB_PASSWORD)}@${process.env.MONGODB_SERVICE_HOST}:${process.env.MONGODB_SERVICE_PORT}/?authMechanism=DEFAULT`, function(err, client) {
+          dbClient.connect((err) => {
             if(err) {
               console.error(err);
             } else {
               console.log("Connected successfully to db");
-              const db = client.db(process.env.MONGODB_DATABASE);
-            }
+              const db = dbClient.db(process.env.MONGODB_DATABASE);
             
-            if(client) {
-              client.close();
+              dbClient.close();
             }
           });
           break;
