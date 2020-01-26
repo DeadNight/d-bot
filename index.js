@@ -100,7 +100,7 @@ function handleList(msg) {
 
     inMemStore.forEach((description, key) => {
       if(msg.guild.id == key.guildId) {
-        list += `\n${msg.guild.members.get(key.memberId).displayName} is hosting ${value}`;
+        list += `\n${msg.guild.members.get(key.memberId).displayName} is hosting ${description}`;
       }
     });
 
