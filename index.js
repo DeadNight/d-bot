@@ -18,28 +18,34 @@ client.on('message', msg => {
     if(cmd[0] == '!h' || cmd[0] == '!host') {
       switch(cmd[1]) {
         case undefined:
+        case 'h':
         case 'help':
-          msg.reply(help);
+          reply(help, msg);
           break;
 
+        case 's':
+        case 'set':
         case 'start':
           handleStart(cmd[2], msg);
           break;
 
+        case 'u':
         case 'up':
           handleUp(cmd[2], msg);
           break;
 
+        case 'e':
         case 'end':
           handleEnd(msg);
           break;
 
+        case 'l':
         case 'list':
           handleList(msg);
           break;
 
         default:
-          msg.reply(`unsupported command, ${help}`);
+          reply(`unsupported command, ${help}`, msg);
       }
     }
   }
@@ -48,14 +54,15 @@ client.on('message', msg => {
 client.login(process.env.token)
  .catch(console.error);
 
+let profile = process.env.profile || 'dev';
 let inMemStore = new Map();
 
 function handleStart(description, msg) {
   if(description) {
     inMemStore.set(msg.author.id, description);
-    msg.reply(`started hosting ${inMemStore.get(msg.author.id)}`);
+    reply(`started hosting ${inMemStore.get(msg.author.id)}`, msg);
   } else {
-    msg.reply('set a description with `!host start [description]`');
+    reply('set a description with `!host start [description]`', msg);
   }
 }
 
@@ -69,19 +76,18 @@ function handleUp(code, msg) {
       response += '\nno code';
     }
 
-    msg.channel.send(response);
+    send(response, msg);
   } else {
-    msg.reply('not hosting at the moment\n'
-      + 'start hosting with `!host start [description]`');
+    reply('not hosting at the moment\nstart hosting with `!host start [description]`', msg);
   }
 }
 
 function handleEnd(msg) {
   if(inMemStore.has(msg.author.id)) {
-    msg.reply(`stopped hosting ${inMemStore.get(msg.author.id)}`);
+    reply(`stopped hosting ${inMemStore.get(msg.author.id)}`, msg);
     inMemStore.delete(msg.author.id);
   } else {
-    msg.reply('not hosting at the moment');
+    reply('not hosting at the moment', msg);
   }
 }
 
@@ -93,9 +99,24 @@ function handleList(msg) {
       list += `\n${msg.guild.members.get(key).displayName} is hosting ${value}`;
     });
 
-    msg.reply(list);
+    reply(list, msg);
   } else {
-    msg.reply('nobody is hosting at the moment');
+    reply('nobody is hosting at the moment', msg);
   }
 }
 
+function reply(response, msg) {
+  if(profile == 'prod') {
+    msg.reply(response);
+  } else {
+    console.log(`${msg.member.displayName}:\n${msg.content}\nd-bot:\n${msg.member.displayName}, ${response}`);
+  }
+}
+
+function send(response, msg) {
+  if(profile == 'prod') {
+    msg.channel.reply(response);
+  } else {
+    console.log(`${msg.member.displayName}:\n${msg.content}\nd-bot:\n${response}`);
+  }
+}
