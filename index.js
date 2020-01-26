@@ -120,7 +120,7 @@ function handleList(msg) {
 }
 
 function getKey(member) {
-  return JSNO.stringify({ guildId: member.guild.id, memberId: member.id });
+  return JSON.stringify({ guildId: member.guild.id, memberId: member.id });
 }
 
 function reply(response, msg) {
