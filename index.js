@@ -160,12 +160,10 @@ function setHostData(id, description, member) {
       { _id: member.guild.id },
       { $push: { "members.$[member].hosts": hostData} },
       { arrayFilters: [ { "member._id": { $eq: member.id } } ] }
-    ).then(() => {
-      memberData.hosts.set(id, hostData);
-    }).catch(log.error);
+    ).catch(log.error);
+    
+    memberData.hosts.set(id, hostData);
   }
-  
-  return hostData;
 }
 
 function getHostData(id, member) {
@@ -179,10 +177,12 @@ function removeHostData(id, member) {
   let hostData = memberData.hosts.get(id);
   
   if(hostData) {
+    dbClient.db(process.env.MONGODB_DATABASE).guilds.update(
+      { _id: member.guild.id },
+      { $pull: "members.$[member].hosts.$._id": id },
+      { arrayFilters: [ { "member._id": { $eq: member.id } } ] }
+    ).catch(console.error);
     memberData.hosts.delete(id);
-    return true;
-  } else {
-    return false;
   }
 }
 
@@ -195,10 +195,10 @@ function getGuildData(guild) {
       members: []
     };
     
-    dbClient.db(process.env.MONGODB_DATABASE).guilds.insert(guildData).then(() => {
-      guildData.members = new Map();
-      cache.set(guild.id, guildData);
-    }).catch(log.error);
+    dbClient.db(process.env.MONGODB_DATABASE).guilds.insert(guildData).catch(log.error);
+    
+    guildData.members = new Map();
+    cache.set(guild.id, guildData);
   }
   
   return guildData;
@@ -218,10 +218,10 @@ function getMemberData(member) {
       { _id: guildData._id },
       { $push: { members: memberData } },
       {}
-    ).then(() => {
-      memberData.hosts = new Map();
-      guildData.members.set(member.id, memberData);
-    }).catch(log.error);
+    ).catch(log.error);
+    
+    memberData.hosts = new Map();
+    guildData.members.set(member.id, memberData);
   }
   
   return memberData;
