@@ -158,7 +158,7 @@ function setHostData(id, description, member) {
       { _id: member.guild.id },
       { $push: { "members.$[member].hosts": hostData} },
       { arrayFilters: [ { "member._id": { $eq: member.id } } ] }
-    ).catch(log.error);
+    ).catch(console.error);
     
     memberData.hosts.set(id, hostData);
   }
@@ -193,7 +193,7 @@ function getGuildData(guild) {
       members: []
     };
     
-    dbClient.db(process.env.MONGODB_DATABASE).collection('guilds').insert(guildData).catch(log.error);
+    dbClient.db(process.env.MONGODB_DATABASE).collection('guilds').insert(guildData).catch(console.error);
     
     guildData.members = new Map();
     cache.set(guild.id, guildData);
@@ -216,7 +216,7 @@ function getMemberData(member) {
       { _id: guildData._id },
       { $push: { members: memberData } },
       {}
-    ).catch(log.error);
+    ).catch(console.error);
     
     memberData.hosts = new Map();
     guildData.members.set(member.id, memberData);
