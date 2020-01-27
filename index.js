@@ -156,7 +156,7 @@ function setHostData(id, description, member) {
       start: Date.now()
     };
     
-    dbClient.db(process.env.MONGODB_DATABASE).guilds.update(
+    dbClient.db(process.env.MONGODB_DATABASE).getCollection('guilds').update(
       { _id: member.guild.id },
       { $push: { "members.$[member].hosts": hostData} },
       { arrayFilters: [ { "member._id": { $eq: member.id } } ] }
@@ -177,7 +177,7 @@ function removeHostData(id, member) {
   let hostData = memberData.hosts.get(id);
   
   if(hostData) {
-    dbClient.db(process.env.MONGODB_DATABASE).guilds.update(
+    dbClient.db(process.env.MONGODB_DATABASE).getCollection('guilds').update(
       { _id: member.guild.id },
       { $pull: { "members.$[member].hosts.$._id": id } },
       { arrayFilters: [ { "member._id": { $eq: member.id } } ] }
@@ -195,7 +195,7 @@ function getGuildData(guild) {
       members: []
     };
     
-    dbClient.db(process.env.MONGODB_DATABASE).guilds.insert(guildData).catch(log.error);
+    dbClient.db(process.env.MONGODB_DATABASE).getCollection('guilds').insert(guildData).catch(log.error);
     
     guildData.members = new Map();
     cache.set(guild.id, guildData);
@@ -214,7 +214,7 @@ function getMemberData(member) {
       hosts: []
     };
     
-    dbClient.db(process.env.MONGODB_DATABASE).guilds.update(
+    dbClient.db(process.env.MONGODB_DATABASE).getCollection('guilds').update(
       { _id: guildData._id },
       { $push: { members: memberData } },
       {}
