@@ -134,9 +134,9 @@ function handleList(msg) {
 
   guildData.members.forEach((memberData) => {
     let displayName = msg.guild.members.get(memberData._id).displayName;
-    memberData.hosts.forEach(hostData) => {
+    memberData.hosts.forEach((hostData) => {
       list.append(`${displayName} is hosting ${hostData.desc}`);
-    }
+    });
   });
   
   if(list.length) {
