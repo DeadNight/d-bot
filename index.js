@@ -119,7 +119,7 @@ function handleUp(hostId, code, msg) {
 
     send(response, msg);
   } else {
-    reply('not hosting ${hostId} at the moment\nstart hosting with `!host start [hostName] [description]`', msg);
+    reply(`not hosting ${hostId} at the moment\nstart hosting with \`!host start [hostName] [description]\``, msg);
   }
 }
 
@@ -127,9 +127,9 @@ function handleEnd(hostId, msg) {
   let hostData = getHostData(hostId, msg.member);
   if(hostData) {
     reply(`stopped hosting ${hostData.desc}`, msg);
-    removeHostData(hostId || 'main', msg.member);
+    removeHostData(hostId, msg.member);
   } else {
-    reply('not hosting ${hostId} at the moment', msg);
+    reply(`not hosting ${hostId} at the moment`, msg);
   }
 }
 
