@@ -79,7 +79,6 @@ if(profile === 'prod') {
       console.error(err);
     } else {
       console.log('Connected successfully to db');
-      const db = dbClient.db(process.env.MONGODB_DATABASE);
       
       client.login(process.env.token).catch((err) => {
         console.error(err);
@@ -149,11 +148,24 @@ function handleList(msg) {
 function setHostData(id, description, member) {
   let memberData = getMemberData(member);
   
-  memberData.hosts.set(id, {
-    _id: id,
-    desc: description,
-    start: Date.now()
-  });
+  let hostData = memberData.hosts.get(id);
+  if(!hostData) {
+    hostData = {
+      _id: id,
+      desc: description,
+      start: Date.now()
+    };
+    
+    dbClient.db(process.env.MONGODB_DATABASE).guilds.update(
+      { _id: member.guild.id },
+      { $push: { "members.$[member].hosts": hostData} },
+      { arrayFilters: [ { "member._id": { $eq: member.id } } ] }
+    ).then(() => {
+      memberData.hosts.set(id, hostData);
+    }).catch(log.error);
+  }
+  
+  return hostData;
 }
 
 function getHostData(id, member) {
@@ -180,10 +192,15 @@ function getGuildData(guild) {
     guildData = {
       _id: guild.id,
       version: dataModelVersion,
-      members: new Map()
+      members: []
     };
-    cache.set(guild.id, guildData);
+    
+    dbClient.db(process.env.MONGODB_DATABASE).guilds.insert(guildData).then(() => {
+      guildData.members = new Map();
+      cache.set(guild.id, guildData);
+    }).catch(log.error);
   }
+  
   return guildData;
 }
 
@@ -194,9 +211,17 @@ function getMemberData(member) {
   if(!memberData) {
     memberData = {
       _id: member.id,
-      hosts: new Map()
+      hosts: []
     };
-    guildData.members.set(member.id, memberData);
+    
+    dbClient.db(process.env.MONGODB_DATABASE).guilds.update(
+      { _id: guildData._id },
+      { $push: { members: memberData } },
+      {}
+    ).then(() => {
+      memberData.hosts = new Map();
+      guildData.members.set(member.id, memberData);
+    }).catch(log.error);
   }
   
   return memberData;
