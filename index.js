@@ -9,9 +9,9 @@ const dataModelVersion = 1.0;
 let cache = new Map();
 
 const help = 'I support the following commands:'
-  + '\n!host start [description] - start hosting'
-  + '\n!host up [code] - notify raid is up with optional code'
-  + '\n!host end - stop hosting'
+  + '\n!host start [hostName] [description] - start hosting'
+  + '\n!host up [hostName] [code] - notify raid is up with optional code'
+  + '\n!host end [hostName] - stop hosting'
   + '\n!host list - list current hosts';
 
 client.on('ready', () => {
@@ -41,18 +41,27 @@ client.on('message', msg => {
         case 's':
         case 'set':
         case 'start':
-          handleStart(params.join(' '), msg);
+          {
+            let [hostId, ...description] = params;
+            handleStart(hostId, description.join(' '), msg);
+          }
           break;
 
         case 'u':
         case 'up':
-          handleUp(params.join(' '), msg);
+          {
+            let [hostId, code] = params;
+            handleUp(hostId, code, msg);
+          }
           break;
 
         case 'e':
         case 'end':
         case 'empty':
-          handleEnd(msg);
+          {
+            let [hostId] = params
+            handleEnd(hostId, msg);
+          }
           break;
 
         case 'l':
@@ -88,19 +97,19 @@ if(profile === 'prod') {
   client.login(process.env.token).catch(console.error);
 }
 
-function handleStart(description, msg) {
+function handleStart(hostId, description, msg) {
   if(description) {
-    setHostData('main', description, msg.member);
-    reply(`started hosting ${description}`, msg);
+    setHostData(hostId, description, msg.member);
+    reply(`started hosting ${hostId}: ${description}`, msg);
   } else {
-    reply('set a description with `!host start [description]`', msg);
+    reply('set a description with `!host start [hostName] [description]`', msg);
   }
 }
 
-function handleUp(code, msg) {
-  let hostData = getHostData('main', msg.member);
+function handleUp(hostId, code, msg) {
+  let hostData = getHostData(hostId, msg.member);
   if(hostData) {
-    let response = `${msg.member.displayName} is now hosting ${hostData.desc}`;
+    let response = `${msg.member.displayName} is now hosting ${hostId}: ${hostData.desc}`;
 
     if(code) {
       response += `\ncode: ${code}`;
@@ -110,17 +119,17 @@ function handleUp(code, msg) {
 
     send(response, msg);
   } else {
-    reply('not hosting at the moment\nstart hosting with `!host start [description]`', msg);
+    reply(`not hosting ${hostId} at the moment\nstart hosting with \`!host start [hostName] [description]\``, msg);
   }
 }
 
-function handleEnd(msg) {
-  let hostData = getHostData('main', msg.member);
+function handleEnd(hostId, msg) {
+  let hostData = getHostData(hostId, msg.member);
   if(hostData) {
     reply(`stopped hosting ${hostData.desc}`, msg);
-    removeHostData('main', msg.member);
+    removeHostData(hostId, msg.member);
   } else {
-    reply('not hosting at the moment', msg);
+    reply(`not hosting ${hostId} at the moment`, msg);
   }
 }
 
@@ -132,12 +141,12 @@ function handleList(msg) {
   guildData.members.forEach((memberData) => {
     let displayName = msg.guild.members.get(memberData._id).displayName;
     memberData.hosts.forEach((hostData) => {
-      list.push(`${displayName} is hosting ${hostData.desc}`);
+      list.push(`${displayName} is hosting ${hostData._id}: ${hostData.desc}`);
     });
   });
   
   if(list.length) {
-    reply(list.join('\n', msg));
+    reply(list.join('\n'), msg);
   } else {
     reply('nobody is hosting at the moment', msg);
   }
@@ -154,11 +163,13 @@ function setHostData(id, description, member) {
       start: Date.now()
     };
     
-    dbClient.db(process.env.MONGODB_DATABASE).collection('guilds').update(
-      { _id: member.guild.id },
-      { $push: { "members.$[member].hosts": hostData} },
-      { arrayFilters: [ { "member._id": { $eq: member.id } } ] }
-    ).catch(console.error);
+    if(profile === 'prod') {
+      dbClient.db(process.env.MONGODB_DATABASE).collection('guilds').update(
+        { _id: member.guild.id },
+        { $push: { "members.$[member].hosts": hostData} },
+        { arrayFilters: [ { "member._id": { $eq: member.id } } ] }
+      ).catch(console.error);
+    }
     
     memberData.hosts.set(id, hostData);
   }
@@ -175,11 +186,14 @@ function removeHostData(id, member) {
   let hostData = memberData.hosts.get(id);
   
   if(hostData) {
-    dbClient.db(process.env.MONGODB_DATABASE).collection('guilds').update(
-      { _id: member.guild.id },
-      { $pull: { "members.$[member].hosts.$._id": id } },
-      { arrayFilters: [ { "member._id": { $eq: member.id } } ] }
-    ).catch(console.error);
+    if(profile === 'prod') {
+      dbClient.db(process.env.MONGODB_DATABASE).collection('guilds').update(
+        { _id: member.guild.id },
+        { $pull: { "members.$[member].hosts.$._id": id } },
+        { arrayFilters: [ { "member._id": { $eq: member.id } } ] }
+      ).catch(console.error);
+    }
+    
     memberData.hosts.delete(id);
   }
 }
@@ -193,7 +207,9 @@ function getGuildData(guild) {
       members: []
     };
     
-    dbClient.db(process.env.MONGODB_DATABASE).collection('guilds').insertOne(guildData).catch(console.error);
+    if(profile === 'prod') {
+      dbClient.db(process.env.MONGODB_DATABASE).collection('guilds').insertOne(guildData).catch(console.error);
+    }
     
     guildData.members = new Map();
     cache.set(guild.id, guildData);
@@ -212,11 +228,13 @@ function getMemberData(member) {
       hosts: []
     };
     
-    dbClient.db(process.env.MONGODB_DATABASE).collection('guilds').update(
-      { _id: guildData._id },
-      { $push: { members: memberData } },
-      {}
-    ).catch(console.error);
+    if(profile === 'prod') {
+      dbClient.db(process.env.MONGODB_DATABASE).collection('guilds').update(
+        { _id: guildData._id },
+        { $push: { members: memberData } },
+        {}
+      ).catch(console.error);
+    }
     
     memberData.hosts = new Map();
     guildData.members.set(member.id, memberData);
