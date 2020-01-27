@@ -163,11 +163,13 @@ function setHostData(id, description, member) {
       start: Date.now()
     };
     
-    dbClient.db(process.env.MONGODB_DATABASE).collection('guilds').update(
-      { _id: member.guild.id },
-      { $push: { "members.$[member].hosts": hostData} },
-      { arrayFilters: [ { "member._id": { $eq: member.id } } ] }
-    ).catch(console.error);
+    if(profile === 'prod') {
+      dbClient.db(process.env.MONGODB_DATABASE).collection('guilds').update(
+        { _id: member.guild.id },
+        { $push: { "members.$[member].hosts": hostData} },
+        { arrayFilters: [ { "member._id": { $eq: member.id } } ] }
+      ).catch(console.error);
+    }
     
     memberData.hosts.set(id, hostData);
   }
@@ -184,11 +186,14 @@ function removeHostData(id, member) {
   let hostData = memberData.hosts.get(id);
   
   if(hostData) {
-    dbClient.db(process.env.MONGODB_DATABASE).collection('guilds').update(
-      { _id: member.guild.id },
-      { $pull: { "members.$[member].hosts.$._id": id } },
-      { arrayFilters: [ { "member._id": { $eq: member.id } } ] }
-    ).catch(console.error);
+    if(profile === 'prod') {
+      dbClient.db(process.env.MONGODB_DATABASE).collection('guilds').update(
+        { _id: member.guild.id },
+        { $pull: { "members.$[member].hosts.$._id": id } },
+        { arrayFilters: [ { "member._id": { $eq: member.id } } ] }
+      ).catch(console.error);
+    }
+    
     memberData.hosts.delete(id);
   }
 }
@@ -202,7 +207,9 @@ function getGuildData(guild) {
       members: []
     };
     
-    dbClient.db(process.env.MONGODB_DATABASE).collection('guilds').insertOne(guildData).catch(console.error);
+    if(profile === 'prod') {
+      dbClient.db(process.env.MONGODB_DATABASE).collection('guilds').insertOne(guildData).catch(console.error);
+    }
     
     guildData.members = new Map();
     cache.set(guild.id, guildData);
@@ -221,11 +228,13 @@ function getMemberData(member) {
       hosts: []
     };
     
-    dbClient.db(process.env.MONGODB_DATABASE).collection('guilds').update(
-      { _id: guildData._id },
-      { $push: { members: memberData } },
-      {}
-    ).catch(console.error);
+    if(profile === 'prod') {
+      dbClient.db(process.env.MONGODB_DATABASE).collection('guilds').update(
+        { _id: guildData._id },
+        { $push: { members: memberData } },
+        {}
+      ).catch(console.error);
+    }
     
     memberData.hosts = new Map();
     guildData.members.set(member.id, memberData);
