@@ -4,8 +4,9 @@ const { MongoClient } = require('mongodb');
 const client = new Discord.Client();
 const dbClient = new MongoClient(`mongodb://${process.env.MONGODB_SERVICE_HOST}:${process.env.MONGODB_SERVICE_PORT}`);
 
-let profile = process.env.profile || 'dev';
-let inMemStore = new Map();
+const profile = process.env.profile || 'dev';
+const dataModelVersion = 1.0;
+let cache = new Map();
 
 const help = 'I support the following commands:'
   + '\n!host start [description] - start hosting'
@@ -60,19 +61,8 @@ client.on('message', msg => {
           break;
           
         case 'dbtest':
-          if(profile === 'production') {
-            dbClient.connect((err) => {
-              if(err) {
-                console.error(err);
-              } else {
-                reply('Connected successfully to db', msg);
-                const db = dbClient.db(process.env.MONGODB_DATABASE);
-
-                dbClient.close();
-              }
-            });
-          } else if(profile === 'dev') {
-            console.log(JSON.stringify(inMemStore));
+          if(profile === 'dev') {
+            console.log(JSON.stringify(cache));
           }
           break;
 
@@ -83,23 +73,37 @@ client.on('message', msg => {
   }
 });
 
-client.login(process.env.token)
- .catch(console.error);
+if(profile === 'production') {
+  dbClient.connect((err) => {
+    if(err) {
+      console.error(err);
+    } else {
+      console.log('Connected successfully to db');
+      const db = dbClient.db(process.env.MONGODB_DATABASE);
+      
+      client.login(process.env.token).catch((err) => {
+        console.error(err);
+        dbClient.close();
+      });
+    }
+  });
+} else {
+  client.login(process.env.token).catch(console.error);
+}
 
 function handleStart(description, msg) {
   if(description) {
-    let key = getKey(msg.member);
-    inMemStore.set(key, description);
-    reply(`started hosting ${inMemStore.get(key)}`, msg);
+    setHostData('main', description, msg.member);
+    reply(`started hosting ${description}`, msg);
   } else {
     reply('set a description with `!host start [description]`', msg);
   }
 }
 
 function handleUp(code, msg) {
-  let key = getKey(msg.member);
-  if(inMemStore.has(key)) {
-    let response = `${msg.member.displayName} is now hosting ${inMemStore.get(key)}`;
+  let hostData = getHostData('main', msg.member);
+  if(hostData) {
+    let response = `${msg.member.displayName} is now hosting ${hostData.desc}`;
 
     if(code) {
       response += `\ncode: ${code}`;
@@ -114,34 +118,89 @@ function handleUp(code, msg) {
 }
 
 function handleEnd(msg) {
-  let key = getKey(msg.member);
-  if(inMemStore.has(key)) {
-    reply(`stopped hosting ${inMemStore.get(key)}`, msg);
-    inMemStore.delete(key);
+  let hostData = getHostData('main', msg.member);
+  if(hostData) {
+    reply(`stopped hosting ${hostData.desc}`, msg);
+    removeHostData('main', msg.member);
   } else {
     reply('not hosting at the moment', msg);
   }
 }
 
 function handleList(msg) {
-  if(inMemStore.size) {
-    let list = 'current raids:';
+  let list = [];
+  
+  let guildData = getGuildData(msg.guild);
 
-    inMemStore.forEach((description, keyStr) => {
-      let key = JSON.parse(keyStr);
-      if(msg.guild.id == key.guildId) {
-        list += `\n${msg.guild.members.get(key.memberId).displayName} is hosting ${description}`;
-      }
-    });
-
-    reply(list, msg);
+  guildData.members.forEach((memberData) => {
+    let displayName = msg.guild.members.get(memberData._id).displayName;
+    memberData.hosts.forEach(hostData) => {
+      list.append(`${displayName} is hosting ${hostData.desc}`);
+    }
+  });
+  
+  if(list.length) {
+    reply(list.join('\n', msg);
   } else {
     reply('nobody is hosting at the moment', msg);
   }
 }
 
-function getKey(member) {
-  return JSON.stringify({ guildId: member.guild.id, memberId: member.id });
+function setHostData(id, description, member) {
+  let memberData = getMemberData(member);
+  
+  memberData.hosts.set(id, {
+    _id: id,
+    desc: description,
+    start: Date.now()
+  });
+}
+
+function getHostData(id, member) {
+  let memberData = getMemberData(member);
+  
+  return memberData.hosts.get(id);
+}
+
+function removeHostData(id, member) {
+  let memberData = getMemberData(member);
+  let hostData = memberData.hosts.get(id);
+  
+  if(hostData) {
+    memberData.hosts.delete(id);
+    return true;
+  } else {
+    return false;
+  }
+}
+
+function getGuildData(guild) {
+  let guildData = cache.get(member.guild.id);
+  if(!guildData) {
+    guildData = {
+      _id: member.guild.id,
+      version: dataModelVersion,
+      members: new Map()
+    };
+    cache.set(member.guild.id, guildData);
+  }
+  
+  return guildData;
+}
+
+function getMemberData(member) {
+  let guildData = getGuildData(member.guild);
+  
+  let memberData = guildData.members.get(member.id);
+  if(!memberData) {
+    memberData = {
+      _id: member.id,
+      hosts: new Map()
+    };
+    cache.set(member.id, memberData);
+  }
+  
+  return memberData;
 }
 
 function reply(response, msg) {
