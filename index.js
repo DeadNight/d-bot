@@ -9,9 +9,9 @@ const dataModelVersion = 1.0;
 let cache = new Map();
 
 const help = 'I support the following commands:'
-  + '\n!host start [description] - start hosting'
-  + '\n!host up [code] - notify raid is up with optional code'
-  + '\n!host end - stop hosting'
+  + '\n!host start [hostName] [description] - start hosting'
+  + '\n!host up [hostName] [code] - notify raid is up with optional code'
+  + '\n!host end [hostName] - stop hosting'
   + '\n!host list - list current hosts';
 
 client.on('ready', () => {
@@ -50,8 +50,8 @@ client.on('message', msg => {
         case 'u':
         case 'up':
           {
-            let [hostId, ...description] = params;
-            handleUp(hostId, description.join(' '), msg);
+            let [hostId, code] = params;
+            handleUp(hostId, code.join(' '), msg);
           }
           break;
 
@@ -100,16 +100,16 @@ if(profile === 'prod') {
 function handleStart(hostId, description, msg) {
   if(description) {
     setHostData(hostId, description, msg.member);
-    reply(`started hosting ${description}`, msg);
+    reply(`started hosting ${hostId}: ${description}`, msg);
   } else {
-    reply('set a description with `!host start [description]`', msg);
+    reply('set a description with `!host start [hostName] [description]`', msg);
   }
 }
 
 function handleUp(hostId, code, msg) {
-  let hostData = getHostData(hostId || 'main', msg.member);
+  let hostData = getHostData(hostId, msg.member);
   if(hostData) {
-    let response = `${msg.member.displayName} is now hosting ${hostData.desc}`;
+    let response = `${msg.member.displayName} is now hosting ${hostId}: ${hostData.desc}`;
 
     if(code) {
       response += `\ncode: ${code}`;
@@ -119,17 +119,17 @@ function handleUp(hostId, code, msg) {
 
     send(response, msg);
   } else {
-    reply('not hosting at the moment\nstart hosting with `!host start [description]`', msg);
+    reply('not hosting ${hostId} at the moment\nstart hosting with `!host start [hostName] [description]`', msg);
   }
 }
 
 function handleEnd(hostId, msg) {
-  let hostData = getHostData(hostId || 'main', msg.member);
+  let hostData = getHostData(hostId, msg.member);
   if(hostData) {
     reply(`stopped hosting ${hostData.desc}`, msg);
     removeHostData(hostId || 'main', msg.member);
   } else {
-    reply('not hosting at the moment', msg);
+    reply('not hosting ${hostId} at the moment', msg);
   }
 }
 
@@ -141,12 +141,12 @@ function handleList(msg) {
   guildData.members.forEach((memberData) => {
     let displayName = msg.guild.members.get(memberData._id).displayName;
     memberData.hosts.forEach((hostData) => {
-      list.push(`${displayName} is hosting ${hostData.desc}`);
+      list.push(`${displayName} is hosting ${hostData._id}: ${hostData.desc}`);
     });
   });
   
   if(list.length) {
-    reply(list.join('\n', msg));
+    reply(list.join('\n'), msg);
   } else {
     reply('nobody is hosting at the moment', msg);
   }
