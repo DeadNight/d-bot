@@ -41,21 +41,27 @@ client.on('message', msg => {
         case 's':
         case 'set':
         case 'start':
-          let [hostId, ...description] = params;
-          handleStart(hostId, description.join(' '), msg);
+          {
+            let [hostId, ...description] = params;
+            handleStart(hostId, description.join(' '), msg);
+          }
           break;
 
         case 'u':
         case 'up':
-          let [hostId, ...description] = params;
-          handleUp(hostId, description.join(' '), msg);
+          {
+            let [hostId, ...description] = params;
+            handleUp(hostId, description.join(' '), msg);
+          }
           break;
 
         case 'e':
         case 'end':
         case 'empty':
-          let [hostId] = params
-          handleEnd(hostId, msg);
+          {
+            let [hostId] = params
+            handleEnd(hostId, msg);
+          }
           break;
 
         case 'l':
