@@ -179,7 +179,7 @@ function removeHostData(id, member) {
   if(hostData) {
     dbClient.db(process.env.MONGODB_DATABASE).guilds.update(
       { _id: member.guild.id },
-      { $pull: "members.$[member].hosts.$._id": id },
+      { $pull: { "members.$[member].hosts.$._id": id } },
       { arrayFilters: [ { "member._id": { $eq: member.id } } ] }
     ).catch(console.error);
     memberData.hosts.delete(id);
