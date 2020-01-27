@@ -2,10 +2,8 @@ const Discord = require('discord.js');
 const { MongoClient } = require('mongodb');
 
 const client = new Discord.Client();
-const dbClient = new MongoClient(`mongodb://${process.env.MONGODB_SERVICE_HOST}:${process.env.MONGODB_SERVICE_PORT}`, {
-  authSource: process.env.MONGODB_DATABASE,
-  "auth.user": process.env.MONGODB_USER,
-  "auth.password": process.env.MONGODB_PASSWORD
+const dbClient = new MongoClient(`mongodb://${process.env.MONGODB_USER}:${process.env.MONGODB_PASSWORD}@${process.env.MONGODB_SERVICE_HOST}:${process.env.MONGODB_SERVICE_PORT}?authSource=admin`, {
+  useUnifiedTopology: true
 });
 
 const profile = process.env.profile || 'dev';
@@ -197,7 +195,7 @@ function getGuildData(guild) {
       members: []
     };
     
-    dbClient.db(process.env.MONGODB_DATABASE).collection('guilds').insert(guildData).catch(console.error);
+    dbClient.db(process.env.MONGODB_DATABASE).collection('guilds').insertOne(guildData).catch(console.error);
     
     guildData.members = new Map();
     cache.set(guild.id, guildData);
