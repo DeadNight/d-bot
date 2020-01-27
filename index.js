@@ -2,7 +2,11 @@ const Discord = require('discord.js');
 const { MongoClient } = require('mongodb');
 
 const client = new Discord.Client();
-const dbClient = new MongoClient(`mongodb://${process.env.MONGODB_SERVICE_HOST}:${process.env.MONGODB_SERVICE_PORT}`);
+const dbClient = new MongoClient(`mongodb://${process.env.MONGODB_SERVICE_HOST}:${process.env.MONGODB_SERVICE_PORT}`, {
+  authSource: process.env.MONGODB_DATABASE,
+  "auth.user": process.env.MONGODB_USER,
+  "auth.password": process.env.MONGODB_PASSWORD
+});
 
 const profile = process.env.profile || 'dev';
 const dataModelVersion = 1.0;
