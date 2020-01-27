@@ -158,7 +158,7 @@ function setHostData(id, description, member) {
     
     dbClient.db(process.env.MONGODB_DATABASE).guilds.update(
       { _id: member.guild.id },
-      { $push: { "members.$[member].hosts": hostData},
+      { $push: { "members.$[member].hosts": hostData} },
       { arrayFilters: [ { "member._id": { $eq: member.id } } ] }
     ).then(() => {
       memberData.hosts.set(id, hostData);
