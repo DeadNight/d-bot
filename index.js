@@ -61,9 +61,7 @@ client.on('message', msg => {
           break;
           
         case 'dbtest':
-          if(profile === 'dev') {
-            console.log(cache);
-          }
+          console.log(cache);
           break;
 
         default:
