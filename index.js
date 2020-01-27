@@ -2,18 +2,20 @@ const Discord = require('discord.js');
 const { MongoClient } = require('mongodb');
 
 const client = new Discord.Client();
-
 const dbClient = new MongoClient(`mongodb://${process.env.MONGODB_SERVICE_HOST}:${process.env.MONGODB_SERVICE_PORT}`);
 
-client.on('ready', () => {
-  console.log(`Logged in as ${client.user.tag}!`);
-});
+let profile = process.env.profile || 'dev';
+let inMemStore = new Map();
 
 const help = 'I support the following commands:'
   + '\n!host start [description] - start hosting'
   + '\n!host up [code] - notify raid is up with optional code'
   + '\n!host end - stop hosting'
   + '\n!host list - list current hosts';
+
+client.on('ready', () => {
+  console.log(`Logged in as ${client.user.tag}!`);
+});
 
 client.on('message', msg => {
   if(msg.content.startsWith('!h')) {
@@ -48,6 +50,7 @@ client.on('message', msg => {
 
         case 'e':
         case 'end':
+        case 'empty':
           handleEnd(msg);
           break;
 
@@ -57,16 +60,20 @@ client.on('message', msg => {
           break;
           
         case 'dbtest':
-          dbClient.connect((err) => {
-            if(err) {
-              console.error(err);
-            } else {
-              reply('Connected successfully to db', msg);
-              const db = dbClient.db(process.env.MONGODB_DATABASE);
-            
-              dbClient.close();
-            }
-          });
+          if(profile === 'production') {
+            dbClient.connect((err) => {
+              if(err) {
+                console.error(err);
+              } else {
+                reply('Connected successfully to db', msg);
+                const db = dbClient.db(process.env.MONGODB_DATABASE);
+
+                dbClient.close();
+              }
+            });
+          } else if(profile === 'dev') {
+            console.log(JSON.stringify(inMemStore));
+          }
           break;
 
         default:
@@ -78,9 +85,6 @@ client.on('message', msg => {
 
 client.login(process.env.token)
  .catch(console.error);
-
-let profile = process.env.profile || 'dev';
-let inMemStore = new Map();
 
 function handleStart(description, msg) {
   if(description) {
