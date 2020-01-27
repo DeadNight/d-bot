@@ -51,7 +51,7 @@ client.on('message', msg => {
         case 'up':
           {
             let [hostId, code] = params;
-            handleUp(hostId, code.join(' '), msg);
+            handleUp(hostId, code, msg);
           }
           break;
 
