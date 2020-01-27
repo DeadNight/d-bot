@@ -41,18 +41,21 @@ client.on('message', msg => {
         case 's':
         case 'set':
         case 'start':
-          handleStart(params.join(' '), msg);
+          let [hostId, ...description] = params;
+          handleStart(hostId, description.join(' '), msg);
           break;
 
         case 'u':
         case 'up':
-          handleUp(params.join(' '), msg);
+          let [hostId, ...description] = params;
+          handleUp(hostId, description.join(' '), msg);
           break;
 
         case 'e':
         case 'end':
         case 'empty':
-          handleEnd(msg);
+          let [hostId] = params
+          handleEnd(hostId, msg);
           break;
 
         case 'l':
@@ -88,17 +91,17 @@ if(profile === 'prod') {
   client.login(process.env.token).catch(console.error);
 }
 
-function handleStart(description, msg) {
+function handleStart(hostId, description, msg) {
   if(description) {
-    setHostData('main', description, msg.member);
+    setHostData(hostId, description, msg.member);
     reply(`started hosting ${description}`, msg);
   } else {
     reply('set a description with `!host start [description]`', msg);
   }
 }
 
-function handleUp(code, msg) {
-  let hostData = getHostData('main', msg.member);
+function handleUp(hostId, code, msg) {
+  let hostData = getHostData(hostId || 'main', msg.member);
   if(hostData) {
     let response = `${msg.member.displayName} is now hosting ${hostData.desc}`;
 
@@ -114,11 +117,11 @@ function handleUp(code, msg) {
   }
 }
 
-function handleEnd(msg) {
-  let hostData = getHostData('main', msg.member);
+function handleEnd(hostId, msg) {
+  let hostData = getHostData(hostId || 'main', msg.member);
   if(hostData) {
     reply(`stopped hosting ${hostData.desc}`, msg);
-    removeHostData('main', msg.member);
+    removeHostData(hostId || 'main', msg.member);
   } else {
     reply('not hosting at the moment', msg);
   }
