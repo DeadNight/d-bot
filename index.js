@@ -140,7 +140,7 @@ function handleList(msg) {
   });
   
   if(list.length) {
-    reply(list.join('\n', msg);
+    reply(list.join('\n', msg));
   } else {
     reply('nobody is hosting at the moment', msg);
   }
