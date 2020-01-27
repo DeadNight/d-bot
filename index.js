@@ -62,7 +62,7 @@ client.on('message', msg => {
           
         case 'dbtest':
           if(profile === 'dev') {
-            console.log(JSON.stringify(cache));
+            console.log(cache);
           }
           break;
 
@@ -73,7 +73,7 @@ client.on('message', msg => {
   }
 });
 
-if(profile === 'production') {
+if(profile === 'prod') {
   dbClient.connect((err) => {
     if(err) {
       console.error(err);
@@ -135,7 +135,7 @@ function handleList(msg) {
   guildData.members.forEach((memberData) => {
     let displayName = msg.guild.members.get(memberData._id).displayName;
     memberData.hosts.forEach((hostData) => {
-      list.append(`${displayName} is hosting ${hostData.desc}`);
+      list.push(`${displayName} is hosting ${hostData.desc}`);
     });
   });
   
@@ -184,7 +184,6 @@ function getGuildData(guild) {
     };
     cache.set(guild.id, guildData);
   }
-  
   return guildData;
 }
 
@@ -197,7 +196,7 @@ function getMemberData(member) {
       _id: member.id,
       hosts: new Map()
     };
-    cache.set(member.id, memberData);
+    guildData.members.set(member.id, memberData);
   }
   
   return memberData;
