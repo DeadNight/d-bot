@@ -175,14 +175,14 @@ function removeHostData(id, member) {
 }
 
 function getGuildData(guild) {
-  let guildData = cache.get(member.guild.id);
+  let guildData = cache.get(guild.id);
   if(!guildData) {
     guildData = {
-      _id: member.guild.id,
+      _id: guild.id,
       version: dataModelVersion,
       members: new Map()
     };
-    cache.set(member.guild.id, guildData);
+    cache.set(guild.id, guildData);
   }
   
   return guildData;
