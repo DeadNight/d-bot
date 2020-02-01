@@ -319,7 +319,7 @@ function setHostData(member, account, description) {
         });
       } else {
         memberData.hosts.set(account, hostData);
-        resolve(res.affectedRows);
+        resolve(1);
       }
     }).catch((err) => {
       reject(err);
