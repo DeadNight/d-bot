@@ -191,7 +191,7 @@ function handleEnd(account, msg) {
           reply(`Couldn't remove host data.\nError code: ${errCode}.\nPlease try again later.`, msg);
         });
       } else {
-        reply(`You aren not hosting at the moment`, msg);
+        reply(`You are not hosting at the moment`, msg);
       }
     }).catch((err) => {
       let errCode = uuidv4();
@@ -210,7 +210,7 @@ function handleEnd(account, msg) {
           reply(`Couldn't remove host data for ${account || 'main'}.\nError code: ${errCode}.\nPlease try again later.`, msg);
         });
       } else {
-        reply(`You aren not hosting for ${account || 'main'} at the moment`, msg);
+        reply(`You are not hosting for ${account || 'main'} at the moment`, msg);
       }
     }).catch((err) => {
         let errCode = uuidv4();
