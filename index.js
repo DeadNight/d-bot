@@ -143,8 +143,8 @@ function handleUp(account, code, msg) {
       if(memberData.hosts.size) {
         let response = `${msg.member.displayName}'s raids are now up`;
         
-        memberData.hosts.forEach((hostData) => {
-          response += `\n${hostData.account}: ${hostData.desc}`;
+        memberData.hosts.forEach((hostData, account) => {
+          response += `\n${account}: ${hostData.desc}`;
         });
         
         response += `\nCode: ${code || 'none'}`;
