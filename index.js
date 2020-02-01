@@ -150,7 +150,7 @@ function handleUp(account, code, msg) {
       reply(`Couldn't get member data.\nError code: ${errCode}.\nPlease try again later.`, msg);
     });
   } else {
-    getHostData(account || 'main', msg.member).then((hostData) => {
+    getHostData(msg.member, account || 'main').then((hostData) => {
       if(hostData) {
         send(`${msg.member.displayName}'s raid is now up\n${account || 'main'}: ${hostData.desc}\nCode: ${code || 'none'}`, msg);
       } else {
@@ -184,7 +184,7 @@ function handleEnd(account, msg) {
       reply(`Couldn't get member data.\nError code: ${errCode}.\nPlease try again later.`, msg);
     });
   } else {
-    getHostData(account || 'main', msg.member).then((hostData) => {
+    getHostData(msg.member, account || 'main').then((hostData) => {
       if(hostData) {
         removeHostData(msg.member, account || 'main').then(() => {
           reply(`Stopped hosting ${account || 'main'}: ${hostData.desc}`, msg);
@@ -288,10 +288,10 @@ function getMemberData(member) {
   });
 }
 
-function getHostData(account, member) {
+function getHostData(member, account) {
   return new Promise((resolve, reject) => {
     getMemberData(member).then((memberData) => {
-      return memberData.hosts.get(account);
+      resolve(memberData.hosts.get(account));
     }).catch((err) => {
       reject(err);
     });
