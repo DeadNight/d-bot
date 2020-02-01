@@ -82,7 +82,7 @@ client.on('message', msg => {
           break;
 
         case 'dbtest':
-          console.log(utils.inspect(cache, {depth: Infinity, colors: true}));
+          console.log(util.inspect(cache, {depth: Infinity, colors: true}));
           break;
 
         default:
