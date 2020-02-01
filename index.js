@@ -273,11 +273,11 @@ function handleModEnd(memberMention, msg) {
     return;
   }
   
-  if(!memberMention) {
-    reply(`Please mention a member for whom to end hosts\nCommand: !host mod-end {mention}`, msg);
+  if(!msg.mentions.members.size) {
+    reply(`Please mention members for whom to end hosts\nCommand: !host mod-end {mention} [mention...]`, msg);
   }
   
-  let member = msg.guild.members.get(memberMention);
+  let member = msg.mentions.members.first();
   removeHostData(member).then((count) => {
     reply(`Stopped ${count} active hosts of ${member.displayName}`, msg);
   }).catch((err) => {
