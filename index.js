@@ -214,7 +214,7 @@ function handleList(msg) {
         response += `\n${displayName} is hosting:`;
         
         memberData.hosts.forEach((hostData, account) => {
-          response += `${account}: ${hostData.desc}`;
+          response += `\n${account}: ${hostData.desc}`;
         });
       }
     });
@@ -302,14 +302,14 @@ function setHostData(member, account, description) {
   return new Promise((resolve, reject) => {
     getMemberData(member).then((memberData) => {
       let hostData = {
-        description: description,
+        desc: description,
         start: Date.now()
       };
       
       if(process.env.profile === 'prod') {
         dbConnection.query({
           sql: 'Replace Into `hosts` Set `guildId`=?, `memberId`=?, `account`=?, `desc`=?, `start`=?',
-          values: [member.guild.id, member.id, account, hostData.description, hostData.start]
+          values: [member.guild.id, member.id, account, hostData.desc, hostData.start]
         }, (err, res) => {
           if(err) {
             reject(err);
@@ -332,7 +332,7 @@ function removeHostData(member, account) {
   return new Promise((resolve, reject) => {
     getMemberData(member).then((memberData) => {
       let hostData = {
-        description: description,
+        desc: description,
         start: Date.now()
       };
       
