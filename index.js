@@ -15,7 +15,8 @@ const dbConnection = mysql.createConnection({
 });
 
 const profile = process.env.profile || 'dev';
-const supportedCommands = new Set(['h','help','s','set','start','u','up','e','end','empty','l','list','dbtest']);
+const supportedCommands = new Set(['h','help','s','set','start','u','up','e','end','empty','l','list','mod-end','dbtest']);
+const modRoles = new Set(['Admin', 'Moderator']);
 let cache = new Map();
 
 const help = 'I support the following commands. Parameters in [brackets] are optional, parameters in {braces} are required:'
@@ -29,69 +30,80 @@ client.on('ready', () => {
 });
 
 client.on('message', msg => {
-  if(msg.content.startsWith('!h')) {
-    let [prefix, cmd, ...params] = msg.content.split(' ');
-    
-    if(prefix === '!h' || prefix === '!host') {
-      if(cmd === 'test') {
-        if(profile === 'dev' || profile === 'debug') {
-          [cmd, ...params] = params;
-        } else {
-          return;
-        }
-      }
-      
-      if(!cmd) {
-        reply(help, msg);
-        return;
-      }
-      
-      let account;
-      if(!supportedCommands.has(cmd)) {
-        account = cmd;
-        [cmd, ...params] = params;
-      }
-      
-      switch(cmd) {
-        case undefined:
-        case 'h':
-        case 'help':
-          reply(help, msg);
-          break;
+  if(msg.author.bot || !msg.content.startsWith('!h')) {
+    return;
+  }
+  
+  let [prefix, cmd, ...params] = msg.content.split(' ');
 
-        case 's':
-        case 'set':
-        case 'start':
-          handleStart(account, params.join(' '), msg);
-          break;
-
-        case 'u':
-        case 'up':
-          {
-            let [code] = params;
-            handleUp(account, code, msg);
-          }
-          break;
-
-        case 'e':
-        case 'end':
-        case 'empty':
-          handleEnd(account, msg);
-          break;
-
-        case 'l':
-        case 'list':
-          handleList(msg);
-          break;
-
-        case 'dbtest':
-          console.log(util.inspect(cache, {depth: Infinity, colors: true}));
-          break;
-
-        default:
-          reply(`Unsupported command, ${help}`, msg);
-      }
+  if(prefix !== '!h' && prefix !== '!host') {
+    return;
+  }
+  
+  if(cmd === 'test') {
+    if(profile === 'dev' || profile === 'debug') {
+      [cmd, ...params] = params;
+    } else {
+      return;
     }
+  }
+
+  if(!cmd) {
+    reply(help, msg);
+    return;
+  }
+
+  let account;
+  if(!supportedCommands.has(cmd)) {
+    account = cmd;
+    [cmd, ...params] = params;
+  }
+
+  switch(cmd) {
+    case undefined:
+    case 'h':
+    case 'help':
+      reply(help, msg);
+      break;
+
+    case 's':
+    case 'set':
+    case 'start':
+      handleStart(account, params.join(' '), msg);
+      break;
+
+    case 'u':
+    case 'up':
+      {
+        let [code] = params;
+        handleUp(account, code, msg);
+      }
+      break;
+
+    case 'e':
+    case 'end':
+    case 'empty':
+      handleEnd(account, msg);
+      break;
+
+    case 'l':
+    case 'list':
+      handleList(msg);
+      break;
+
+    case 'mod-end':
+      {
+        let [memberMention] = params;
+        handleModEnd(memberMention, msg);
+      }
+      break;
+
+    case 'dbtest':
+      console.log(util.inspect(cache, {depth: Infinity, colors: true}));
+      break;
+
+    default:
+      reply(`Unsupported command, ${help}`, msg);
   }
 });
 
@@ -170,7 +182,7 @@ function handleUp(account, code, msg) {
     }).catch((err) => {
       let errCode = uuidv4();
       console.error(`[${errCode}] ${err}`);
-      reply(`Couldn't get host data for ${account || 'main'}.\nError code: ${errCode}.\nPlease try again later.`, msg);
+      reply(`Couldn't get host data for ${account || 'main'}\nError code: ${errCode}\nPlease try again later`, msg);
     });
   }
 }
@@ -207,7 +219,7 @@ function handleEnd(account, msg) {
         }).catch((err) => {
           let errCode = uuidv4();
           console.error(`[${errCode}] ${err}`);
-          reply(`Couldn't remove host data for ${account || 'main'}.\nError code: ${errCode}.\nPlease try again later.`, msg);
+          reply(`Couldn't remove host data for ${account || 'main'}\nError code: ${errCode}\nPlease try again later`, msg);
         });
       } else {
         reply(`You are not hosting for ${account || 'main'} at the moment`, msg);
@@ -215,7 +227,7 @@ function handleEnd(account, msg) {
     }).catch((err) => {
         let errCode = uuidv4();
         console.error(`[${errCode}] ${err}`);
-        reply(`Couldn't get host data.\nError code: ${errCode}.\nPlease try again later.`, msg);
+        reply(`Couldn't get host data\nError code: ${errCode}\nPlease try again later`, msg);
     });
   }
 }
@@ -247,7 +259,31 @@ function handleList(msg) {
   }).catch((err) => {
       let errCode = uuidv4();
       console.error(`[${errCode}] ${err}`);
-      reply(`Couldn't get guild data.\nError code: ${errCode}.\nPlease try again later.`, msg);
+      reply(`Couldn't get guild data\nError code: ${errCode}\nPlease try again later`, msg);
+  });
+}
+
+function handleModEnd(memberMention, msg) {
+  if(profile === 'debug') {
+    console.log(`${arguments.callee.name}(${Array.from(arguments)})`);
+  }
+  
+  if(!msg.member.roles.find((role) => { return modRoles.has(role.name); })) {
+    reply(`Unsupported command, ${help}`, msg);
+    return;
+  }
+  
+  if(!msg.mentions.members.size) {
+    reply(`Please mention members for whom to end hosts\nCommand: !host mod-end {mention} [mention...]`, msg);
+  }
+  
+  let member = msg.mentions.members.first();
+  removeHostData(member).then((count) => {
+    reply(`Stopped ${count} active hosts of ${member.displayName}`, msg);
+  }).catch((err) => {
+    let errCode = uuidv4();
+    console.error(`[${errCode}] ${err}`);
+    reply(`Couldn't stop active hosts of ${member.displayName}\nError code: ${errCode}\nPlease try again later`, msg);
   });
 }
 
