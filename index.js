@@ -198,7 +198,8 @@ function handleEnd(account, msg) {
   } else {
     getHostData(msg.member, account || 'main').then((hostData) => {
       if(hostData) {
-        removeHostData(msg.member, account || 'main').then(() => {
+        
+        (msg.member, account || 'main').then(() => {
           reply(`Stopped hosting ${account || 'main'}: ${hostData.desc}`, msg);
         }).catch((err) => {
           let errCode = uuidv4();
@@ -385,8 +386,18 @@ function removeHostData(member, account) {
           }
         });
       } else {
-        memberData.hosts.delete(account);
-        resolve(1);
+        if(account) {
+          if(memberData.hosts.has(account) {
+            memberData.hosts.delete(account);
+            resolve(1);
+          } else {
+            resolve(0);
+          }
+        } else {
+          let count = memberData.hosts.size;
+          memberData.hosts.empty();
+          resolve(count);
+        }
       }
     }).catch((err) => {
       reject(err);
