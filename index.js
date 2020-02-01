@@ -331,11 +331,6 @@ function setHostData(member, account, description) {
 function removeHostData(member, account) {
   return new Promise((resolve, reject) => {
     getMemberData(member).then((memberData) => {
-      let hostData = {
-        desc: description,
-        start: Date.now()
-      };
-      
       let sql = 'Delete From `hosts` Where `guildId`=? And `memberId`=?';
       if(account) {
         sql += ' And `account`=?';
