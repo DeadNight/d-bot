@@ -169,7 +169,7 @@ function handleEnd(account, msg) {
     getMemberData(msg.member).then((memberData) => {
       if(memberData.hosts.size) {
         removeHostData(msg.member).then((count) => {
-          reply('Stopped ${count} active hosts', msg);
+          reply(`Stopped ${count} active hosts`, msg);
         }).catch((err) => {
           let errCode = uuidv4();
           console.error(`[${errCode}] ${err}`);
