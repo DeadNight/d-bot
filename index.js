@@ -11,7 +11,7 @@ const dbConnection = mysql.createConnection({
 });
 
 const profile = process.env.profile || 'dev';
-const supportedCommands = ['h','help','s','set','start','u','up','e','end','empty','l','list','dbtest'];
+const supportedCommands = new Set(['h','help','s','set','start','u','up','e','end','empty','l','list','dbtest']);
 let cache = new Map();
 
 const help = 'I support the following commands. Parameters in [brackets] are optional, parameters in {braces} are required:'
@@ -43,7 +43,7 @@ client.on('message', msg => {
       }
       
       let account;
-      if(!supportedCommands[cmd]) {
+      if(!supportedCommands.has(cmd)) {
         account = cmd;
         [cmd, ...params] = params;
       }
