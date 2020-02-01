@@ -305,18 +305,22 @@ function setHostData(member, account, description) {
         start: Date.now()
       };
       
-      dbConnection.query({
-        sql: 'Replace Into `hosts` Set `guildId`=?, `memberId`=?, `account`=?, `desc`=?, `start`=?',
-        values: [member.guild.id, member.id, account, hostData.description, hostData.start]
-      }, (err, res) => {
-        if(err) {
-          reject(err);
-        } else {
-          memberData.hosts.set(account, hostData);
-          
-          resolve(res.affectedRows);
-        }
-      });
+      if(process.env.profile === 'prod') {
+        dbConnection.query({
+          sql: 'Replace Into `hosts` Set `guildId`=?, `memberId`=?, `account`=?, `desc`=?, `start`=?',
+          values: [member.guild.id, member.id, account, hostData.description, hostData.start]
+        }, (err, res) => {
+          if(err) {
+            reject(err);
+          } else {
+            memberData.hosts.set(account, hostData);
+            resolve(res.affectedRows);
+          }
+        });
+      } else {
+        memberData.hosts.set(account, hostData);
+        resolve(res.affectedRows);
+      }
     }).catch((err) => {
       reject(err);
     });
