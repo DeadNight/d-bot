@@ -278,7 +278,7 @@ function getGuildData(guild) {
             guildData.members.set(row.memberId, { hosts: new Map() });
           }
 
-          guildData.members.hosts.set(row.account, { desc: row.desc, start: row.start });
+          guildData.members.get(row.memberId).hosts.set(row.account, { desc: row.desc, start: row.start });
         });
 
         cache.set(guild.id, guildData);
