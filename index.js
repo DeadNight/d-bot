@@ -331,23 +331,27 @@ function setHostData(member, account, description) {
 function removeHostData(member, account) {
   return new Promise((resolve, reject) => {
     getMemberData(member).then((memberData) => {
-      let sql = 'Delete From `hosts` Where `guildId`=? And `memberId`=?';
-      if(account) {
-        sql += ' And `account`=?';
-      }
-      
-      dbConnection.query({
-        sql: sql,
-        values: [member.guild.id, member.id, account]
-      }, (err, res) => {
-        if(err) {
-          reject(err);
-        } else {
-          memberData.hosts.delete(account);
-          
-          resolve(res.affectedRows);
+      if(process.env.profile ==='prod') {
+        let sql = 'Delete From `hosts` Where `guildId`=? And `memberId`=?';
+        if(account) {
+          sql += ' And `account`=?';
         }
-      });
+
+        dbConnection.query({
+          sql: sql,
+          values: [member.guild.id, member.id, account]
+        }, (err, res) => {
+          if(err) {
+            reject(err);
+          } else {
+            memberData.hosts.delete(account);
+            resolve(res.affectedRows);
+          }
+        });
+      } else {
+        memberData.hosts.delete(account);
+        resolve(1);
+      }
     }).catch((err) => {
       reject(err);
     });
