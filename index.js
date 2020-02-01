@@ -263,7 +263,7 @@ function getGuildData(guild) {
 
     if(profile === 'prod') {
       dbConnection.query({
-        sql: 'Select `memberId`, `desc`, `start` From `hosts` Where `guildId`=?',
+        sql: 'Select `memberId`, `account`, `desc`, `start` From `hosts` Where `guildId`=?',
         values: [guild.id]
       }, (err, res) => {
         if(err) {
@@ -271,12 +271,12 @@ function getGuildData(guild) {
           return;
         }
 
-        results.forEach((host) => {
-          if(!guildData.members.has(host.memberId)) {
-            guildData.members.set(host.memberId, { hosts: [] });
+        results.forEach((row) => {
+          if(!guildData.members.has(row.memberId)) {
+            guildData.members.set(row.memberId, { hosts: new Map() });
           }
 
-          guildData.members.hosts.set({ desc: host.desc, start: host.start });
+          guildData.members.hosts.set(row.account, { desc: row.desc, start: row.start });
         });
 
         cache.set(guild.id, guildData);
@@ -395,6 +395,10 @@ function removeHostData(member, account) {
 }
 
 function reply(response, msg) {
+  if(profile === 'debug') {
+    console.log(`${arguments.callee.name}(${Array.from(arguments)})`);
+  }
+  
   if(profile == 'prod') {
     msg.reply(response);
   } else {
@@ -403,6 +407,10 @@ function reply(response, msg) {
 }
 
 function send(response, msg) {
+  if(profile === 'debug') {
+    console.log(`${arguments.callee.name}(${Array.from(arguments)})`);
+  }
+  
   if(profile === 'prod') {
     msg.channel.send(response);
   } else {
