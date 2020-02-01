@@ -200,7 +200,7 @@ function handleEnd(account, msg) {
     getHostData(msg.member, account || 'main').then((hostData) => {
       if(hostData) {
         
-        (msg.member, account || 'main').then(() => {
+        removeHostData(msg.member, account || 'main').then(() => {
           reply(`Stopped hosting ${account || 'main'}: ${hostData.desc}`, msg);
         }).catch((err) => {
           let errCode = uuidv4();
