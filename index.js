@@ -144,11 +144,11 @@ function handleUp(account, code, msg) {
         let response = `${msg.member.displayName}'s raids are now up`;
         
         memberData.hosts.forEach((hostData) => {
-          response += `\n${account}: ${hostData.desc}`;
+          response += `\n${hostData.account}: ${hostData.desc}`;
         });
         
         response += `\nCode: ${code || 'none'}`;
-        send(response);
+        send(response, msg);
       } else {
         reply(`You are not hosting at the moment.\nYou can start hosting with the command: \`!host [account] start [description]\`.`, msg);
       }
@@ -395,10 +395,6 @@ function removeHostData(member, account) {
 }
 
 function reply(response, msg) {
-  if(profile === 'debug') {
-    console.log(`${arguments.callee.name}(${Array.from(arguments)})`);
-  }
-  
   if(profile == 'prod') {
     msg.reply(response);
   } else {
@@ -407,10 +403,6 @@ function reply(response, msg) {
 }
 
 function send(response, msg) {
-  if(profile === 'debug') {
-    console.log(`${arguments.callee.name}(${Array.from(arguments)})`);
-  }
-  
   if(profile === 'prod') {
     msg.channel.send(response);
   } else {
