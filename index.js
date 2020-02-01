@@ -109,31 +109,32 @@ if(profile === 'prod') {
 }
 
 function handleStart(account, description, msg) {
-  if(description) {
     if(account === 'all') {
       reply('Can\'t host for `all`, please choose a different account name', msg);
       return;
     }
-    
-    setHostData(account || 'main', description, msg.member).then((hostData) => {
-      reply(`Started hosting ${account || 'main'}: ${description}`, msg);
-    }).catch((err) => {
-      let errCode = uuidv4();
-      console.error(`[${errCode}] ${err}`);
-      reply(`Couldn't save host ${account || 'main'}: ${description}\nError code: ${errCode}\nPlease try again later`, msg);
-    });
-  } else {
+  
+  if(!description) {
     reply('Can\'t start hosting without a description\nCommand: `!host [account] start {description}`', msg);
+    return;
   }
+    
+  setHostData(msg.member, account || 'main', description).then((hostData) => {
+    reply(`Started hosting ${account || 'main'}: ${description}`, msg);
+  }).catch((err) => {
+    let errCode = uuidv4();
+    console.error(`[${errCode}] ${err}`);
+    reply(`Couldn't save host ${account || 'main'}: ${description}\nError code: ${errCode}\nPlease try again later`, msg);
+  });
 }
 
 function handleUp(account, code, msg) {
   if(account === 'all') {
-    getMemberData(mag.member).then((memberData) => {
-      if(member.hosts.size) {
+    getMemberData(msg.member).then((memberData) => {
+      if(memberData.hosts.size) {
         let response = `${msg.member.displayName}'s raids are now up`;
         
-        member.hosts.forEach((host) => {
+        memberData.hosts.forEach((hostData) => {
           response += `\n${account}: ${hostData.desc}`;
         });
         
@@ -296,7 +297,7 @@ function getHostData(account, member) {
   });
 }
 
-function setHostData(account, description, member) {
+function setHostData(member, account, description) {
   return new Promise((resolve, reject) => {
     getMemberData(member).then((memberData) => {
       let hostData = {
