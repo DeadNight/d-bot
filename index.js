@@ -5,7 +5,8 @@ const util = require('util');
 
 const client = new Discord.Client();
 const dbConnection = mysql.createConnection({
-  host: process.env.DB_HOST,
+  host: process.env.MYSQL_SERVICE_HOST,
+  port: process.env.MYSQL_SERVICE_PORT,
   user: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
   database: process.env.DB_NAME
