@@ -274,7 +274,7 @@ function handleModEnd(memberMention, msg) {
   }
   
   if(!memberMention) {
-    reply(`Please mention a member for whom to end hosts\nCommand: !host mod-end {mention}`);
+    reply(`Please mention a member for whom to end hosts\nCommand: !host mod-end {mention}`, msg);
   }
   
   let member = msg.guild.members.get(memberMention);
