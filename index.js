@@ -267,7 +267,7 @@ function getGuildData(guild) {
       dbConnection.query({
         sql: 'Select `memberId`, `account`, `desc`, `start` From `hosts` Where `guildId`=?',
         values: [guild.id]
-      }, (err, res) => {
+      }, (err, results) => {
         if(err) {
           reject(err);
           return;
@@ -344,12 +344,12 @@ function setHostData(member, account, description) {
         dbConnection.query({
           sql: 'Replace Into `hosts` Set `guildId`=?, `memberId`=?, `account`=?, `desc`=?, `start`=?',
           values: [member.guild.id, member.id, account, hostData.desc, hostData.start]
-        }, (err, res) => {
+        }, (err, results) => {
           if(err) {
             reject(err);
           } else {
             memberData.hosts.set(account, hostData);
-            resolve(res.affectedRows);
+            resolve(results.affectedRows);
           }
         });
       } else {
@@ -378,12 +378,12 @@ function removeHostData(member, account) {
         dbConnection.query({
           sql: sql,
           values: [member.guild.id, member.id, account]
-        }, (err, res) => {
+        }, (err, results) => {
           if(err) {
             reject(err);
           } else {
             memberData.hosts.delete(account);
-            resolve(res.affectedRows);
+            resolve(results.affectedRows);
           }
         });
       } else {
