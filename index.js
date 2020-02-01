@@ -110,10 +110,14 @@ if(profile === 'prod') {
 }
 
 function handleStart(account, description, msg) {
-    if(account === 'all') {
-      reply('Can\'t host for `all`, please choose a different account name', msg);
-      return;
-    }
+  if(profile === 'debug') {
+    console.log(`${arguments.callee.name}(${Array.from(arguments)})`);
+  }
+  
+  if(account === 'all') {
+    reply('Can\'t host for `all`, please choose a different account name', msg);
+    return;
+  }
   
   if(!description) {
     reply('Can\'t start hosting without a description\nCommand: `!host [account] start {description}`', msg);
@@ -130,6 +134,10 @@ function handleStart(account, description, msg) {
 }
 
 function handleUp(account, code, msg) {
+  if(profile === 'debug') {
+    console.log(`${arguments.callee.name}(${Array.from(arguments)})`);
+  }
+  
   if(account === 'all') {
     getMemberData(msg.member).then((memberData) => {
       if(memberData.hosts.size) {
@@ -165,6 +173,10 @@ function handleUp(account, code, msg) {
 }
 
 function handleEnd(account, msg) {
+  if(profile === 'debug') {
+    console.log(`${arguments.callee.name}(${Array.from(arguments)})`);
+  }
+  
   if(account === 'all') {
     getMemberData(msg.member).then((memberData) => {
       if(memberData.hosts.size) {
@@ -205,6 +217,10 @@ function handleEnd(account, msg) {
 }
 
 function handleList(msg) {
+  if(profile === 'debug') {
+    console.log(`${arguments.callee.name}(${Array.from(arguments)})`);
+  }
+  
   getGuildData(msg.guild).then((guildData) => {
     let response = '';
     
@@ -232,6 +248,10 @@ function handleList(msg) {
 }
 
 function getGuildData(guild) {
+  if(profile === 'debug') {
+    console.log(`${arguments.callee.name}(${Array.from(arguments)})`);
+  }
+  
   return new Promise((resolve, reject) => {
     let guildData = cache.get(guild.id);
     if(guildData) {
@@ -270,6 +290,10 @@ function getGuildData(guild) {
 }
 
 function getMemberData(member) {
+  if(profile === 'debug') {
+    console.log(`${arguments.callee.name}(${Array.from(arguments)})`);
+  }
+  
   return new Promise((resolve, reject) => {
     getGuildData(member.guild).then((guildData) => {
       let memberData = guildData.members.get(member.id);
@@ -289,6 +313,10 @@ function getMemberData(member) {
 }
 
 function getHostData(member, account) {
+  if(profile === 'debug') {
+    console.log(`${arguments.callee.name}(${Array.from(arguments)})`);
+  }
+  
   return new Promise((resolve, reject) => {
     getMemberData(member).then((memberData) => {
       resolve(memberData.hosts.get(account));
@@ -299,6 +327,10 @@ function getHostData(member, account) {
 }
 
 function setHostData(member, account, description) {
+  if(profile === 'debug') {
+    console.log(`${arguments.callee.name}(${Array.from(arguments)})`);
+  }
+  
   return new Promise((resolve, reject) => {
     getMemberData(member).then((memberData) => {
       let hostData = {
@@ -329,9 +361,13 @@ function setHostData(member, account, description) {
 }
 
 function removeHostData(member, account) {
+  if(profile === 'debug') {
+    console.log(`${arguments.callee.name}(${Array.from(arguments)})`);
+  }
+  
   return new Promise((resolve, reject) => {
     getMemberData(member).then((memberData) => {
-      if(process.env.profile ==='prod') {
+      if(process.env.profile === 'prod') {
         let sql = 'Delete From `hosts` Where `guildId`=? And `memberId`=?';
         if(account) {
           sql += ' And `account`=?';
