@@ -31,7 +31,7 @@ client.on('message', msg => {
     if(prefix === '!h' || prefix === '!host') {
       if(cmd === 'test') {
         if(profile === 'dev') {
-          cmd = params.splice(0, 1)[0];
+          [cmd, ...params] = params;
         } else {
           return;
         }
