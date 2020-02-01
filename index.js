@@ -384,7 +384,12 @@ function removeHostData(member, account) {
           if(err) {
             reject(err);
           } else {
-            memberData.hosts.delete(account);
+            if(account) {
+              memberData.hosts.delete(account);
+            } else {
+              memberData.hosts.clear();
+            }
+            
             resolve(results.affectedRows);
           }
         });
