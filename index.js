@@ -395,7 +395,7 @@ function removeHostData(member, account) {
           }
         } else {
           let count = memberData.hosts.size;
-          memberData.hosts.empty();
+          memberData.hosts.clear();
           resolve(count);
         }
       }
