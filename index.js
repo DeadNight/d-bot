@@ -11,10 +11,10 @@ const dbConnection = mysql.createConnection({
 });
 
 const profile = process.env.profile || 'dev';
-const dataModelVersion = 1.0;
+const supportedCommands = ['h','help','s','set','start','u','up','e','end','empty','l','list','dbtest'];
 let cache = new Map();
 
-const help = 'I support the following commands. parameters in [brackets] are optional, parameters in {braces}  are required:'
+const help = 'I support the following commands. Parameters in [brackets] are optional, parameters in {braces} are required:'
   + '\n!host [account] start {description} - start hosting'
   + '\n!host [account] up [code] - notify raid is up with optional code'
   + '\n!host [account] end - stop hosting'
@@ -37,52 +37,55 @@ client.on('message', msg => {
         }
       }
       
+      if(!cmd) {
+        reply(help, msg);
+        return;
+      }
+      
       let account;
-      while(!account) {
-        switch(cmd) {
-          case undefined:
-          case 'h':
-          case 'help':
-            reply(help, msg);
-            break;
+      if(!supportedCommands[cmd]) {
+        account = cmd;
+        [cmd, ...params] = params;
+      }
+      
+      switch(cmd) {
+        case undefined:
+        case 'h':
+        case 'help':
+          reply(help, msg);
+          break;
 
-          case 's':
-          case 'set':
-          case 'start':
-            handleStart(account, params.join(' '), msg);
-            break;
+        case 's':
+        case 'set':
+        case 'start':
+          handleStart(account, params.join(' '), msg);
+          break;
 
-          case 'u':
-          case 'up':
-            {
-              let [code] = params;
-              handleUp(account, code, msg);
-            }
-            break;
+        case 'u':
+        case 'up':
+          {
+            let [code] = params;
+            handleUp(account, code, msg);
+          }
+          break;
 
-          case 'e':
-          case 'end':
-          case 'empty':
-            handleEnd(account, msg);
-            break;
+        case 'e':
+        case 'end':
+        case 'empty':
+          handleEnd(account, msg);
+          break;
 
-          case 'l':
-          case 'list':
-            handleList(msg);
-            break;
+        case 'l':
+        case 'list':
+          handleList(msg);
+          break;
 
-          case 'dbtest':
-            console.log(cache);
-            break;
+        case 'dbtest':
+          console.log(cache);
+          break;
 
-          default:
-            if(account) {
-              reply(`unsupported command, ${help}`, msg);
-            } else {
-              account = cmd;
-              [cmd, ...params] = params;
-            }
-        }
+        default:
+          reply(`Unsupported command, ${help}`, msg);
       }
     }
   }
