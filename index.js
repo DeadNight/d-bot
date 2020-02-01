@@ -387,7 +387,7 @@ function removeHostData(member, account) {
         });
       } else {
         if(account) {
-          if(memberData.hosts.has(account) {
+          if(memberData.hosts.has(account)) {
             memberData.hosts.delete(account);
             resolve(1);
           } else {
