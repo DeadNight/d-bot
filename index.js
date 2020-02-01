@@ -16,6 +16,7 @@ const dbConnection = mysql.createConnection({
 
 const profile = process.env.profile || 'dev';
 const supportedCommands = new Set(['h','help','s','set','start','u','up','e','end','empty','l','list','mod-end','dbtest']);
+const modRoles = new Set(['Admin', 'Moderator']);
 let cache = new Map();
 
 const help = 'I support the following commands. Parameters in [brackets] are optional, parameters in {braces} are required:'
@@ -262,6 +263,30 @@ function handleList(msg) {
   });
 }
 
+function handleModEnd(memberMention, msg) {
+  if(profile === 'debug') {
+    console.log(`${arguments.callee.name}(${Array.from(arguments)})`);
+  }
+  
+  if(!msg.member.roles.find((role) => { return modRoles.has(role.name); })) {
+    reply(`Unsupported command, ${help}`, msg);
+    return;
+  }
+  
+  if(!memberMention) {
+    reply(`Please mention a member for whom to end hosts\nCommand: !host mod-end {mention}`);
+  }
+  
+  let member = msg.guild.members.get(memberMention);
+  removeHostData(member).then((count) => {
+    reply(`Stopped ${count} active hosts of ${member.displayName}`, msg);
+  }).catch((err) => {
+    let errCode = uuidv4();
+    console.error(`[${errCode}] ${err}`);
+    reply(`Couldn't stop active hosts of ${member.displayName}\nError code: ${errCode}\nPlease try again later`, msg);
+  });
+}
+
 function getGuildData(guild) {
   if(profile === 'debug') {
     console.log(`${arguments.callee.name}(${Array.from(arguments)})`);
@@ -301,23 +326,6 @@ function getGuildData(guild) {
       cache.set(guild.id, guildData);
       resolve(guildData);
     }
-  });
-}
-
-handleModEnd(memberMention, msg) {
-  if(profile === 'debug') {
-    console.log(`${arguments.callee.name}(${Array.from(arguments)})`);
-  }
-  
-  
-  
-  let member = msg.guild.members.get(memberMention);
-  removeHostData(member).then((count) => {
-    reply(`Stopped ${count} active hosts from ${member.displayName}`, msg);
-  }).catch((err) => {
-    let errCode = uuidv4();
-    console.error(`[${errCode}] ${err}`);
-    reply(`Couldn't stop active hosts for ${member.displayName}\nError code: ${errCode}\nPlease try again later`, msg);
   });
 }
 
