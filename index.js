@@ -290,7 +290,7 @@ function getHostData(account, member) {
   return new Promise((resolve, reject) => {
     getMemberData(member).then((memberData) => {
       return memberData.hosts.get(account);
-    }).reject((err) => {
+    }).catch((err) => {
       reject(err);
     });
   });
