@@ -237,6 +237,13 @@ function handleList(msg) {
     console.log(`${arguments.callee.name}(${Array.from(arguments)})`);
   }
   
+  if(msg.guild.name === '🌽 Land of the Corn 🌽') {
+    if(msg.channel.name != 'bot-commands-🤖' && msg.channel.name != 'current-and-upcoming-dens') {
+      reply(`Please use the list command at ${msg.guild.channels.find(channel => channel.name === 'bot-commands-🤖')}`, msg)
+      return;
+    }
+  }
+  
   getGuildData(msg.guild).then((guildData) => {
     let response = '';
     
