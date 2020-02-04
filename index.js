@@ -11,7 +11,8 @@ const dbConnection = mysql.createConnection({
   password: process.env.DB_PASSWORD,
   database: process.env.DB_NAME,
   supportBigNumbers: true,
-  bigNumberStrings: true
+  bigNumberStrings: true,
+  charset: 'utf8mb4'
 });
 
 const profile = process.env.profile || 'dev';
