@@ -21,10 +21,10 @@ const modRoles = new Set(['Admin', 'Moderator']);
 let cache = new Map();
 
 const help = 'I support the following commands. Parameters in [brackets] are optional, parameters in {braces} are required:'
-  + '\n!host [account] start {description} - start hosting'
-  + '\n!host [account] up [code] - notify raid is up with optional code'
-  + '\n!host [account] end - stop hosting'
-  + '\n!host list - list current hosts';
+  + '\n`!host [account] start {title} -- [description]` - start hosting'
+  + '\n`!host [account] up [code]` - notify raid is up with optional code'
+  + '\n`!host [account] end` - stop hosting'
+  + '\n`!host list` - list current hosts';
 
 client.on('ready', () => {
   console.log(`Logged in as ${client.user.tag}!`);
@@ -70,7 +70,19 @@ client.on('message', msg => {
     case 's':
     case 'set':
     case 'start':
-      handleStart(account, params.join(' '), msg);
+      {
+        let title, description;
+        let i = params.indexOf('--');
+        if(i < 0) {
+          title = params.join(' ');
+          description = '';
+        } else {
+          title = params.slice(0, i).join(' ');
+          description = params(i + 1).join(' ');
+        }
+        
+        handleStart(account, title, description, msg);
+      }
       break;
 
     case 'u':
@@ -125,7 +137,7 @@ if(profile === 'prod') {
   client.login(process.env.token).catch(console.error);
 }
 
-function handleStart(account, description, msg) {
+function handleStart(account, title, description, msg) {
   if(profile === 'debug') {
     console.log(`${arguments.callee.name}(${Array.from(arguments)})`);
   }
@@ -135,17 +147,22 @@ function handleStart(account, description, msg) {
     return;
   }
   
-  if(!description) {
-    reply('Can\'t start hosting without a description\nCommand: `!host [account] start {description}`', msg);
+  if(!title) {
+    reply('Can\'t start hosting without a title\nCommand: `!host [account] start {title} -- [description]`', msg);
+    return;
+  }
+  
+  if(title.length > 50) {
+    reply('Can\'t host with a title longer than 50 characters\nCommand: `!host [account] start {title} -- [description]`', msg);
     return;
   }
     
-  setHostData(msg.member, account || 'main', description).then((hostData) => {
-    reply(`Started hosting ${account || 'main'}: ${description}`, msg);
+  setHostData(msg.member, account || 'main', title, description).then((hostData) => {
+    reply(`Started hosting ${account || 'main'}: ${title} ${description}`, msg);
   }).catch((err) => {
     let errCode = uuidv4();
     console.error(`[${errCode}] ${err}`);
-    reply(`Couldn't save host ${account || 'main'}: ${description}\nError code: ${errCode}\nPlease try again later`, msg);
+    reply(`Couldn't save host ${account || 'main'}: ${title} ${description}\nError code: ${errCode}\nPlease try again later`, msg);
   });
 }
 
@@ -160,13 +177,13 @@ function handleUp(account, code, msg) {
         let response = `${msg.member.displayName}'s raids are now up`;
         
         memberData.hosts.forEach((hostData, account) => {
-          response += `\n${account}: ${hostData.desc}`;
+          response += `\n${account}: ${hostData.title} ${hostData.desc}`;
         });
         
         response += `\nCode: ${code || 'none'}`;
         send(response, msg);
       } else {
-        reply(`You are not hosting at the moment.\nYou can start hosting with the command: \`!host [account] start [description]\`.`, msg);
+        reply(`You are not hosting at the moment.\nYou can start hosting with the command: \`!host [account] start {title} -- [description]\`.`, msg);
       }
     }).catch((err) => {
       let errCode = uuidv4();
@@ -176,9 +193,9 @@ function handleUp(account, code, msg) {
   } else {
     getHostData(msg.member, account || 'main').then((hostData) => {
       if(hostData) {
-        send(`${msg.member.displayName}'s raid is now up\n${account || 'main'}: ${hostData.desc}\nCode: ${code || 'none'}`, msg);
+        send(`${msg.member.displayName}'s raid is now up\n${account || 'main'}: ${hostData.title} ${hostData.desc}\nCode: ${code || 'none'}`, msg);
       } else {
-        reply(`You are not hosting ${account || 'main'} at the moment\nYou can start hosting with the command \`!host [account] start [description]\``, msg);
+        reply(`You are not hosting ${account || 'main'} at the moment\nYou can start hosting with the command \`!host [account] start {title} -- [description]\``, msg);
       }
     }).catch((err) => {
       let errCode = uuidv4();
@@ -216,7 +233,7 @@ function handleEnd(account, msg) {
       if(hostData) {
         
         removeHostData(msg.member, account || 'main').then(() => {
-          reply(`Stopped hosting ${account || 'main'}: ${hostData.desc}`, msg);
+          reply(`Stopped hosting ${account || 'main'}: ${hostData.title}`, msg);
         }).catch((err) => {
           let errCode = uuidv4();
           console.error(`[${errCode}] ${err}`);
@@ -250,11 +267,11 @@ function handleList(msg) {
     
     guildData.members.forEach((memberData, memberId) => {
       if(memberData.hosts.size) {
-        let displayName = msg.guild.members.get(memberId).displayName;
-        response += `\n${displayName} is hosting:`;
+        let userTag = msg.guild.members.get(memberId).user.tag;
+        response += `\n${userTag} is hosting:`;
         
         memberData.hosts.forEach((hostData, account) => {
-          response += `\n${account}: ${hostData.desc}`;
+          response += `\n${account}: ${hostData.title}`;
         });
       }
     });
@@ -311,7 +328,7 @@ function getGuildData(guild) {
 
     if(profile === 'prod') {
       dbConnection.query({
-        sql: 'Select `memberId`, `account`, `desc`, `start` From `hosts` Where `guildId`=?',
+        sql: 'Select `memberId`, `account`, `title`, `desc`, `start` From `hosts` Where `guildId`=?',
         values: [guild.id]
       }, (err, results) => {
         if(err) {
@@ -324,7 +341,7 @@ function getGuildData(guild) {
             guildData.members.set(row.memberId, { hosts: new Map() });
           }
 
-          guildData.members.get(row.memberId).hosts.set(row.account, { desc: row.desc, start: row.start });
+          guildData.members.get(row.memberId).hosts.set(row.account, { title: row.title, desc: row.desc, start: row.start });
         });
 
         cache.set(guild.id, guildData);
@@ -374,7 +391,7 @@ function getHostData(member, account) {
   });
 }
 
-function setHostData(member, account, description) {
+function setHostData(member, account, title, description) {
   if(profile === 'debug') {
     console.log(`${arguments.callee.name}(${Array.from(arguments)})`);
   }
@@ -382,14 +399,15 @@ function setHostData(member, account, description) {
   return new Promise((resolve, reject) => {
     getMemberData(member).then((memberData) => {
       let hostData = {
+        title: title,
         desc: description,
         start: Date.now()
       };
       
       if(process.env.profile === 'prod') {
         dbConnection.query({
-          sql: 'Replace Into `hosts` Set `guildId`=?, `memberId`=?, `account`=?, `desc`=?, `start`=?',
-          values: [member.guild.id, member.id, account, hostData.desc, hostData.start]
+          sql: 'Replace Into `hosts` Set `guildId`=?, `memberId`=?, `account`=?, `title`=?, `desc`=?, `start`=?',
+          values: [member.guild.id, member.id, account, hostData.title, hostData.desc, hostData.start]
         }, (err, results) => {
           if(err) {
             reject(err);
@@ -458,8 +476,6 @@ function removeHostData(member, account) {
 }
 
 function reply(response, msg) {
-  
-  
   if(profile == 'prod') {
     try {
       if(response.length > 2000) {
