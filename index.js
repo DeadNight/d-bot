@@ -78,7 +78,7 @@ client.on('message', msg => {
           description = '';
         } else {
           title = params.slice(0, i).join(' ');
-          description = params(i + 1).join(' ');
+          description = params.slice(i + 1).join(' ');
         }
         
         handleStart(account, title, description, msg);
