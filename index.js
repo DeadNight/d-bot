@@ -459,7 +459,13 @@ function removeHostData(member, account) {
 
 function reply(response, msg) {
   if(profile == 'prod') {
-    msg.reply(response);
+    try {
+      msg.reply(response);
+    } catch(err) {
+      let errCode = uuidv4();
+      console.error(`[${errCode}] ${err}`);
+      reply(`Couldn't send a reply message to Discord\nError code: ${errCode}\nPlease try again later`, msg);
+    }
   } else {
     console.log(`${msg.member.displayName}:\n${msg.content}\nd-bot:\n@${msg.member.displayName}, ${response}`);
   }
@@ -467,7 +473,13 @@ function reply(response, msg) {
 
 function send(response, msg) {
   if(profile === 'prod') {
-    msg.channel.send(response);
+    try {
+      msg.channel.send(response);
+    } catch(err) {
+      let errCode = uuidv4();
+      console.error(`[${errCode}] ${err}`);
+      reply(`Couldn't send a message to Discord\nError code: ${errCode}\nPlease try again later`, msg);
+    }
   } else {
     console.log(`${msg.member.displayName}:\n${msg.content}\nd-bot:\n${response}`);
   }
