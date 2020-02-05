@@ -463,7 +463,9 @@ function reply(response, msg) {
   if(profile == 'prod') {
     try {
       if(response.length > 2000) {
-         throw new Error("Response too long");
+        let err = new Error("Response too long");
+        Error.captureStackTrace(err);
+        throw err;
       }
       
       msg.reply(response);
@@ -481,7 +483,9 @@ function send(response, msg) {
   if(profile === 'prod') {
     try {
       if(response.length > 2000) {
-         throw new Error("Response too long");
+        let err = new Error("Response too long");
+        Error.captureStackTrace(err);
+        throw err;
       }
       
       msg.channel.send(response);
