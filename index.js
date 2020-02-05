@@ -458,8 +458,14 @@ function removeHostData(member, account) {
 }
 
 function reply(response, msg) {
+  
+  
   if(profile == 'prod') {
     try {
+      if(response.length > 2000) {
+         throw new Error("Response too long");
+      }
+      
       msg.reply(response);
     } catch(err) {
       let errCode = uuidv4();
@@ -474,6 +480,10 @@ function reply(response, msg) {
 function send(response, msg) {
   if(profile === 'prod') {
     try {
+      if(response.length > 2000) {
+         throw new Error("Response too long");
+      }
+      
       msg.channel.send(response);
     } catch(err) {
       let errCode = uuidv4();
