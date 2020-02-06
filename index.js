@@ -147,12 +147,18 @@ function handleStart(account, title, description, msg) {
     return;
   }
   
+  if(account.length > 25) {
+    reply('Can\'t host with an account longer than 25 characters\nCommand: `!host [account] start {title} -- [description]`', msg);
+    return;
+  }
+  
   if(!title) {
     reply('Can\'t start hosting without a title\nCommand: `!host [account] start {title} -- [description]`', msg);
     return;
   }
   
-  if(title.length > 50) {
+  let titleSquashedEmoji = title.replace(/<:\w+:\d+>/gi, 'E');
+  if(titleSquashedEmoji.length > 50) {
     reply('Can\'t host with a title longer than 50 characters\nCommand: `!host [account] start {title} -- [description]`', msg);
     return;
   }
@@ -268,7 +274,7 @@ function handleList(msg) {
     guildData.members.forEach((memberData, memberId) => {
       if(memberData.hosts.size) {
         let userTag = msg.guild.members.get(memberId).user.tag;
-        response += `\n${userTag} is hosting:`;
+        response += `\n---\n${userTag} is hosting:`;
         
         memberData.hosts.forEach((hostData, account) => {
           response += `\n${account}: ${hostData.title}`;
@@ -477,19 +483,11 @@ function removeHostData(member, account) {
 
 function reply(response, msg) {
   if(profile == 'prod') {
-    try {
-      if(response.length > 2000) {
-        let err = new Error("Response too long");
-        Error.captureStackTrace(err);
-        throw err;
-      }
-      
-      msg.reply(response);
-    } catch(err) {
+    msg.reply(response).catch((err) => {
       let errCode = uuidv4();
       console.error(`[${errCode}] ${err}`);
       reply(`Couldn't send a reply message to Discord\nError code: ${errCode}\nPlease try again later`, msg);
-    }
+    });
   } else {
     console.log(`${msg.member.displayName}:\n${msg.content}\nd-bot:\n@${msg.member.displayName}, ${response}`);
   }
@@ -497,19 +495,11 @@ function reply(response, msg) {
 
 function send(response, msg) {
   if(profile === 'prod') {
-    try {
-      if(response.length > 2000) {
-        let err = new Error("Response too long");
-        Error.captureStackTrace(err);
-        throw err;
-      }
-      
-      msg.channel.send(response);
-    } catch(err) {
+    msg.channel.send(response).catch((err) => {
       let errCode = uuidv4();
       console.error(`[${errCode}] ${err}`);
       reply(`Couldn't send a message to Discord\nError code: ${errCode}\nPlease try again later`, msg);
-    }
+    });
   } else {
     console.log(`${msg.member.displayName}:\n${msg.content}\nd-bot:\n${response}`);
   }
