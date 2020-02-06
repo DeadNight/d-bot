@@ -158,7 +158,7 @@ function handleStart(account, title, description, msg) {
   }
   
   let titleSquashedEmoji = title.replace(/<:\w+:\d+>/gi, 'E');
-  if(titleSquashedEmoji.length > 50) {
+  if(title > 255 || titleSquashedEmoji.length > 50) {
     reply('Can\'t host with a title longer than 50 characters\nCommand: `!host [account] start {title} -- [description]`', msg);
     return;
   }
