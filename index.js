@@ -262,7 +262,7 @@ function handleList(msg) {
   }
   
   if(msg.guild.name === '🌽 Land of the Corn 🌽') {
-    if(msg.channel.name != 'bot-commands-🤖' && msg.channel.name != 'current-and-upcoming-dens') {
+    if(msg.channel.name != 'bot-commands-🤖' && msg.channel.name != 'current-and-upcoming-dens' && msg.channel.name != 'bot-stuff-for-staff') {
       reply(`Please use the list command at ${msg.guild.channels.find(channel => channel.name === 'bot-commands-🤖')}`, msg)
       return;
     }
