@@ -147,7 +147,7 @@ function handleStart(account, title, description, msg) {
     return;
   }
   
-  if(account.length > 25) {
+  if(account && account.length > 25) {
     reply('Can\'t host with an account longer than 25 characters\nCommand: `!host [account] start {title} -- [description]`', msg);
     return;
   }
