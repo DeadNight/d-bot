@@ -87,7 +87,7 @@ client.on('message', msg => {
 
     case 'u':
     case 'up':
-      handleUp(account, params.join(' ');, msg);
+      handleUp(account, params.join(' '), msg);
       break;
 
     case 'e':
