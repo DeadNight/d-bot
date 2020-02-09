@@ -154,18 +154,26 @@ function handleStart(account, title, description, msg) {
     return;
   }
   
-  let titleSquashedEmoji = title.replace(/<:\w+:\d+>/gi, 'E');
-  if(title > 255 || titleSquashedEmoji.length > 50) {
-    reply('Can\'t host with a title longer than 50 characters\nCommand: `!host [account] start {title} -- [description]`', msg);
-    return;
+  let squashedTitle = title.replace(/<:\w+:\d+>/gi, 'E');
+  if(title > 255 || squashedTitle.length > 50) {
+    reply('Title is longer than 50 characters, it will be split automatically\nTo split manually, please use the command: `!host [account] start {title} -- [description]`', msg);
+    
+    let numWhitespaces = squashedTitle.slice(0, 50).replace(/[^\s]/g, '').length;
+    let i = nthIndexOf(title, /\s+/, numWhitespaces);
+    
+    description = title.slice(i + 1) + (description || '');
+    title = title.slice(0, i);
+    
+    title += '`'.repeat(6 - (title.replace(/[^`]/g, '') % 6));    
+    description = '`'.repeat(6 - (title.replace(/[^`]/g, '') % 6)) + description;
   }
     
   setHostData(msg.member, account || 'main', title, description).then((hostData) => {
-    reply(`Started hosting ${account || 'main'}: ${title} ${description}`, msg);
+    reply(`Started hosting. account: ${account || 'main'}, title: ${title}\ndescription: ${description}`, msg);
   }).catch((err) => {
     let errCode = uuidv4();
     console.error(`[${errCode}] ${err}`);
-    reply(`Couldn't save host ${account || 'main'}: ${title} ${description}\nError code: ${errCode}\nPlease try again later`, msg);
+    reply(`Couldn't save host. account: ${account || 'main'}, title: ${title}\ndescription: ${description}\nError code: ${errCode}\nPlease try again later`, msg);
   });
 }
 
@@ -500,4 +508,13 @@ function send(response, msg) {
   } else {
     console.log(`${msg.member.displayName}:\n${msg.content}\nd-bot:\n${response}`);
   }
+}
+
+function nthIndexOf(str, pattern, n){
+    let l = str.length, i = -1;
+    while(n-- && i++ < l) {
+        i = str.indexOf(pattern, i);
+        if (i < 0) break;
+    }
+    return i;
 }
