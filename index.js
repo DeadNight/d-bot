@@ -164,11 +164,11 @@ function handleStart(account, title, description, msg) {
     description = title.slice(i + 1) + (description || '');
     title = title.slice(0, i);
     
-    if((title.match(/```/g) || []) % 2) {
+    if((title.match(/```/g) || []).length % 2) {
       title += '```';
     }
     
-    if(description.match(/```/g) || []) % 2) {
+    if((description.match(/```/g) || []).length % 2) {
       description = '```' + description;
     }
   }
