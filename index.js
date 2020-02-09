@@ -2,7 +2,6 @@ const Discord = require('discord.js');
 const mysql = require('mysql');
 const uuidv4 = require('uuid/v4');
 const util = require('util');
-const minimist = require('minimist');
 
 const client = new Discord.Client();
 const dbConnection = mysql.createConnection({
