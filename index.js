@@ -52,7 +52,7 @@ Notify that a raid is up with default options:
 \`!host up\`
 Notify that a raid is up with custom options:
 \`!host up -a 3ds -c 9876\`
-Notify that all raids are up with defualt code:
+Notify that all raids are up with default code:
 \`!host up all\`
 Notify that all raids are up with custom code:
 \`!host up all -c 9876\``
@@ -65,7 +65,13 @@ __Syntax__
 **!host end all**
 __Options__
   **-a, --account** - which account stops hosting the raid. can't set this when using the **end all** command. default: main
-__Examples__`
+__Examples__
+Stop hosting a raid from default account 'main':
+\`!host end\`
+Stop hosting a raid from a custom account:
+\`!host end -a 3ds\`
+Stop hosting all raids:
+\`!host end all\``
   },
   list: {
     alias: ['l'],
