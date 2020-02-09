@@ -21,7 +21,7 @@ const modRoles = new Set(['Admin', 'Moderator']);
 let cache = new Map();
 
 const help = 'I support the following commands. Parameters in [brackets] are optional, parameters in {braces} are required:'
-  + '\n`!host [account] start {title} -- [description]` - start hosting'
+  + '\n`!host [account] set {title} -- [description]` - start hosting'
   + '\n`!host [account] up [code]` - notify raid is up with optional code'
   + '\n`!host [account] end` - stop hosting'
   + '\n`!host list` - list current hosts';
@@ -81,7 +81,7 @@ client.on('message', msg => {
           description = params.slice(i + 1).join(' ');
         }
         
-        handleStart(account, title, description, msg);
+        handleSet(account, title, description, msg);
       }
       break;
 
@@ -134,7 +134,7 @@ if(profile === 'prod') {
   client.login(process.env.token).catch(console.error);
 }
 
-function handleStart(account, title, description, msg) {
+function handleSet(account, title, description, msg) {
   if(profile === 'debug') {
     console.log(`${arguments.callee.name}(${Array.from(arguments)})`);
   }
@@ -145,27 +145,40 @@ function handleStart(account, title, description, msg) {
   }
   
   if(account && account.length > 25) {
-    reply('Can\'t host with an account longer than 25 characters\nCommand: `!host [account] start {title} -- [description]`', msg);
+    reply('Can\'t host with an account longer than 25 characters\nCommand: `!host [account] set {title} -- [description]`', msg);
     return;
   }
   
   if(!title) {
-    reply('Can\'t start hosting without a title\nCommand: `!host [account] start {title} -- [description]`', msg);
+    reply('Can\'t start hosting without a title\nCommand: `!host [account] set {title} -- [description]`', msg);
     return;
   }
   
-  let titleSquashedEmoji = title.replace(/<:\w+:\d+>/gi, 'E');
-  if(title > 255 || titleSquashedEmoji.length > 50) {
-    reply('Can\'t host with a title longer than 50 characters\nCommand: `!host [account] start {title} -- [description]`', msg);
-    return;
+  let squashedTitle = title.replace(/<:\w+:\d+>/gi, 'E');
+  if(title > 255 || squashedTitle.length > 50) {
+    reply('Title is longer than 50 characters, it will be split automatically\nTo split manually, please use the command: `!host [account] set {title} -- [description]`', msg);
+    
+    let numWhitespaces = (squashedTitle.slice(0, 50).match(/\s/g) || []).length;
+    let i = (title.match(`^\\S*(?:\\s+\\S+){${numWhitespaces - 1}}`) || [''])[0].length;
+    
+    description = title.slice(i + 1) + (description || '');
+    title = title.slice(0, i);
+    
+    if((title.match(/```/g) || []).length % 2) {
+      title += '```';
+    }
+    
+    if((description.match(/```/g) || []).length % 2) {
+      description = '```' + description;
+    }
   }
     
   setHostData(msg.member, account || 'main', title, description).then((hostData) => {
-    reply(`Started hosting ${account || 'main'}: ${title} ${description}`, msg);
+    reply(`Started hosting. account: ${account || 'main'}, title: ${title}\ndescription: ${description}`, msg);
   }).catch((err) => {
     let errCode = uuidv4();
     console.error(`[${errCode}] ${err}`);
-    reply(`Couldn't save host ${account || 'main'}: ${title} ${description}\nError code: ${errCode}\nPlease try again later`, msg);
+    reply(`Couldn't save host. account: ${account || 'main'}, title: ${title}\ndescription: ${description}\nError code: ${errCode}\nPlease try again later`, msg);
   });
 }
 
@@ -186,7 +199,7 @@ function handleUp(account, code, msg) {
         response += `\nCode: ${code || 'none'}`;
         send(response, msg);
       } else {
-        reply(`You are not hosting at the moment.\nYou can start hosting with the command: \`!host [account] start {title} -- [description]\`.`, msg);
+        reply(`You are not hosting at the moment.\nYou can start hosting with the command: \`!host [account] set {title} -- [description]\`.`, msg);
       }
     }).catch((err) => {
       let errCode = uuidv4();
@@ -198,7 +211,7 @@ function handleUp(account, code, msg) {
       if(hostData) {
         send(`${msg.member.displayName}'s raid is now up\n${account || 'main'}: ${hostData.title} ${hostData.desc}\nCode: ${code || 'none'}`, msg);
       } else {
-        reply(`You are not hosting ${account || 'main'} at the moment\nYou can start hosting with the command \`!host [account] start {title} -- [description]\``, msg);
+        reply(`You are not hosting ${account || 'main'} at the moment\nYou can start hosting with the command \`!host [account] set {title} -- [description]\``, msg);
       }
     }).catch((err) => {
       let errCode = uuidv4();
