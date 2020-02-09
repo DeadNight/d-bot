@@ -81,7 +81,7 @@ client.on('message', msg => {
           description = params.slice(i + 1).join(' ');
         }
         
-        handleStart(account, title, description, msg);
+        handleSet(account, title, description, msg);
       }
       break;
 
@@ -134,7 +134,7 @@ if(profile === 'prod') {
   client.login(process.env.token).catch(console.error);
 }
 
-function handleStart(account, title, description, msg) {
+function handleSet(account, title, description, msg) {
   if(profile === 'debug') {
     console.log(`${arguments.callee.name}(${Array.from(arguments)})`);
   }
@@ -159,7 +159,7 @@ function handleStart(account, title, description, msg) {
     reply('Title is longer than 50 characters, it will be split automatically\nTo split manually, please use the command: `!host [account] start {title} -- [description]`', msg);
     
     let numWhitespaces = (squashedTitle.slice(0, 50).match(/\s/g) || []).length;
-    let i = nthIndexOf(title, /\s/, numWhitespaces);
+    let i = title.match(`^\S*(?:\s+\S+){${numWhitespaces - 1}}`).length;
     
     description = title.slice(i + 1) + (description || '');
     title = title.slice(0, i);
@@ -513,13 +513,4 @@ function send(response, msg) {
   } else {
     console.log(`${msg.member.displayName}:\n${msg.content}\nd-bot:\n${response}`);
   }
-}
-
-function nthIndexOf(str, pattern, n){
-    let l = str.length, i = -1;
-    while(n-- && i++ < l) {
-        i = str.indexOf(pattern, i);
-        if (i < 0) break;
-    }
-    return i;
 }
