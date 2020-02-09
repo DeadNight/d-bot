@@ -159,7 +159,7 @@ function handleSet(account, title, description, msg) {
     reply('Title is longer than 50 characters, it will be split automatically\nTo split manually, please use the command: `!host [account] set {title} -- [description]`', msg);
     
     let numWhitespaces = (squashedTitle.slice(0, 50).match(/\s/g) || []).length;
-    let i = (title.match(`^\\S*(?:\\s+\\S+){${numWhitespaces - 1}}`) || []).length;
+    let i = (title.match(`^\\S*(?:\\s+\\S+){${numWhitespaces - 1}}`) || [''])[0].length;
     
     description = title.slice(i + 1) + (description || '');
     title = title.slice(0, i);
