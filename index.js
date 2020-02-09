@@ -158,14 +158,19 @@ function handleStart(account, title, description, msg) {
   if(title > 255 || squashedTitle.length > 50) {
     reply('Title is longer than 50 characters, it will be split automatically\nTo split manually, please use the command: `!host [account] start {title} -- [description]`', msg);
     
-    let numWhitespaces = squashedTitle.slice(0, 50).replace(/[^\s]/g, '').length;
-    let i = nthIndexOf(title, /\s+/, numWhitespaces);
+    let numWhitespaces = (squashedTitle.slice(0, 50).match(/\s/g) || []).length;
+    let i = nthIndexOf(title, /\s/, numWhitespaces);
     
     description = title.slice(i + 1) + (description || '');
     title = title.slice(0, i);
     
-    title += '`'.repeat(6 - (title.replace(/[^`]/g, '') % 6));    
-    description = '`'.repeat(6 - (title.replace(/[^`]/g, '') % 6)) + description;
+    if((title.match(/```/g) || []) % 2) {
+      title += '```';
+    }
+    
+    if(description.match(/```/g) || []) % 2) {
+      description = '```' + description;
+    }
   }
     
   setHostData(msg.member, account || 'main', title, description).then((hostData) => {
