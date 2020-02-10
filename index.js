@@ -16,14 +16,11 @@ const dbConnection = mysql.createConnection({
 });
 
 const profile = process.env.profile || 'dev';
-const supportedCommands = new Set(['h','help','s','set','start','u','up','e','end','empty','l','list','mod-end','dbtest']);
 const modRoles = new Set(['Admin', 'Moderator']);
 let cache = new Map();
 
-const commands = {
-  set: {
-    alias: ['s', 'start'],
-    help: `**!host set** - set a raid for hosting
+const help = {
+  set: `**!host set** - set a raid for hosting
 __Syntax__
 **!host set** *title* *options*
   title is required, and can be up to 50 characters long. this title appears when using the **list** command.
@@ -35,11 +32,8 @@ __Examples__
 Set a host with default options:
 \`!host set Shiny HA Mew\`
 Set a host with custom options:
-\`!host set Shiny HA Mew -a 3ds -c 1234 -d 3IV, timid nature\``
-  },
-  up: {
-    alias: ['u'],
-    help: `**!host up** - notify that a raid is up
+\`!host set Shiny HA Mew -a 3ds -c 1234 -d 3IV, timid nature\``,
+  up:  `**!host up** - notify that a raid is up
 __Syntax__
 **!host up** *options*
 **!host up all** *options*
@@ -54,11 +48,8 @@ Notify that a raid is up with custom options:
 Notify that all raids are up with default code:
 \`!host up all\`
 Notify that all raids are up with custom code:
-\`!host up all -c 9876\``
-  },
-  end: {
-    alias: ['e'],
-    help: `**!host end** - stop hosting a raid
+\`!host up all -c 9876\``,
+  end: `**!host end** - stop hosting a raid
 __Syntax__
 **!host end** *options*
 **!host end all**
@@ -70,11 +61,8 @@ Stop hosting a raid from default account 'main':
 Stop hosting a raid from a custom account:
 \`!host end -a 3ds\`
 Stop hosting all raids:
-\`!host end all\``
-  },
-  list: {
-    alias: ['l'],
-    help: `**!host list** - show a list of currently hosted pokémon
+\`!host end all\``,
+  list: `**!host list** - show a list of currently hosted pokémon
 __Syntax__
 **!host list**
 **!host list** \`@mention\`
@@ -85,22 +73,26 @@ Show a list of your own hosted raids:
 Show a list of a member's hosted raids:
 \`!host list @DeadNight#7922\`
 Show a list of all hosted raids:
-\`!host list all\``
-  },
-  help: {
-    alias: ['h'],
-    help: `I support the following commands:
+\`!host list all\``,
+  help: `I support the following commands:
 **!host set** - set a pokémon for hosting
 **!host up** - notify that a raid is up
 **!host end** - stop hosting
 **!host list** - list currently hosted pokémon
 **!host help** - show this help again
-**!host help** *command* - show help for a specific command`
+**!host help** *command* - show help for a specific command`,
+  mod: {
+    end: `**!host mod end** - Force end all hosts of a member
+__Syntax__
+**!host mod end** *@mention*
+__Examples__
+End all hosts of a troll member:
+\`!host mod end @troll\``,
+    help: `I support the following mod commands:
+**!host mod end** - Force end all hosts of a member
+**!host mod help** - show this help again
+**!host mod help** *command* - show help for a specific mod command`
   }
-};
-
-const modCommands = {
-  'mod-end': {}
 };
 
 client.on('ready', () => {
@@ -120,77 +112,21 @@ client.on('message', msg => {
   
   if(cmd === 'test') {
     if(profile === 'dev' || profile === 'debug') {
-      [cmd, ...params] = params;
+      cmd = params.shift();
     } else {
       return;
     }
   }
-
-  if(!cmd) {
-    reply(help, msg);
-    return;
-  }
-
-  let account;
-  if(!supportedCommands.has(cmd)) {
-    account = cmd;
-    [cmd, ...params] = params;
-  }
-
-  switch(cmd) {
-    case undefined:
-    case 'h':
-    case 'help':
-      reply(help, msg);
-      break;
-
-    case 's':
-    case 'set':
-    case 'start':
-      {
-        let title, description;
-        let i = params.indexOf('--');
-        if(i < 0) {
-          title = params.join(' ');
-          description = '';
-        } else {
-          title = params.slice(0, i).join(' ');
-          description = params.slice(i + 1).join(' ');
-        }
-        
-        handleSet(account, title, description, msg);
-      }
-      break;
-
-    case 'u':
-    case 'up':
-      handleUp(account, params.join(' '), msg);
-      break;
-
-    case 'e':
-    case 'end':
-    case 'empty':
-      handleEnd(account, msg);
-      break;
-
-    case 'l':
-    case 'list':
-      handleList(msg);
-      break;
-
-    case 'mod-end':
-      {
-        let [memberMention] = params;
-        handleModEnd(memberMention, msg);
-      }
-      break;
-
-    case 'dbtest':
-      console.log(util.inspect(cache, {depth: Infinity, colors: true}));
-      break;
-
-    default:
-      reply(`Unsupported command, ${help}`, msg);
+  
+  if(cmd === 'mod') {
+    if(isMod(msg)) {
+      cmd = params.shift();
+      handleModCommand(cmd, params, msg);
+    } else {
+      reply(`Unsupported command, ${help.help}`, msg);
+    }
+  } else {
+    handleCommand(cmd, params, msg);
   }
 });
 
@@ -211,51 +147,179 @@ if(profile === 'prod') {
   client.login(process.env.token).catch(console.error);
 }
 
-function handleSet(account, title, description, msg) {
+function handleCommand(cmd, params, msg) {
+  switch(cmd) {
+    case undefined:
+    case 'h':
+    case 'help':
+      if(help[params[0]]) {
+        reply(help[params[0]], msg);
+      } else {
+        reply(help.help, msg);
+      }
+      break;
+
+    case 's':
+    case 'set':
+    case 'start':
+      {
+        let [title, options] = parseCommand(params, (options, key, val) => {
+          switch(key) {
+            case '-a':
+            case '--account':
+              options.account = val;
+              break;
+
+            case '-c':
+            case '--code':
+              options.code = val;
+              break;
+
+            case '-d':
+            case '--description':
+              options.description = val;
+              break;
+
+            default:
+              options.unsupported = options.unsupported || [];
+              options.unsupported.push(key);
+          }
+        });
+        
+        if((options.unsupported || []).length) {
+          reply(`Ignoring unsupported options ${options.unsupported.join(' ')}\nFor a list of supported options, type \`!host help set\``, msg);
+        }
+        
+        handleSet(title, options, msg);
+      }
+      break;
+
+    case 'u':
+    case 'up':
+      handleUp(account, params.join(' '), msg);
+      break;
+
+    case 'e':
+    case 'end':
+      handleEnd(account, msg);
+      break;
+
+    case 'l':
+    case 'list':
+      handleList(msg);
+      break;
+
+    default:
+      reply(`Unsupported command, ${help.help}`, msg);
+  }
+}
+
+function handleModCommand(cmd, params, msg) {
+  switch(cmd) {
+    case undefined:
+    case 'h':
+    case 'help':
+      reply(help.mod.help, msg);
+      break;
+    
+    case 'end':
+      if(isMod(msg)) {
+        handleModEnd(msg);
+      } else {
+        reply(`Unsupported command, ${help.mod.help}`, msg);
+      }
+      break;
+
+    case 'dbtest':
+      if(msg.aurhot.id != '269937395842023424') {
+        reply(`Unsupported command, ${help.mod.help}`, msg);
+        return;
+      } else {
+        console.log(util.inspect(cache, {depth: Infinity, colors: true}));
+      }
+      break;
+
+    default:
+      reply(`Unsupported command, ${help.mod.help}`, msg);
+  }
+}
+
+function parseCommand(params, setOpt) {
+  let i = params.find(/^-\w|--(?:[\w-]+)$/);
+  
+  if(i < 0) {
+    return [params.join(' '), {}];
+    return;
+  } else if(i == 0) {
+    return ['', {}];
+  }
+
+  let title = params.splice(0, i).join(' ');
+
+  let options = {};
+  while(params.length) {
+    let key = params.shift();
+    let i = params.find(/^-\w|--(?:[\w-]+)$/);
+
+    let val;
+    if(i < 0) {
+      val = params.splice(0).join(' ');
+    } else if(i == 0) {
+      val = true;
+    } else {
+      val = params.splice(0, i).join(' ');
+    }
+    
+    setOpt(options, key, val);
+  }
+
+  return [title, options];
+}
+
+function handleSet(title, options, msg) {
   if(profile === 'debug') {
     console.log(`${arguments.callee.name}(${Array.from(arguments)})`);
   }
   
-  if(account === 'all') {
-    reply('Can\'t host for `all`, please choose a different account name', msg);
-    return;
-  }
-  
-  if(account && account.length > 25) {
-    reply('Can\'t host with an account longer than 25 characters\nCommand: `!host [account] set {title} -- [description]`', msg);
-    return;
-  }
-  
   if(!title) {
-    reply('Can\'t start hosting without a title\nCommand: `!host [account] set {title} -- [description]`', msg);
+    reply('Can\'t set a raid for hosting without a title\nCommand: **!host set** *title* *options*', msg);
     return;
+  }
+  
+  if(options.account && options.account.length > 25) {
+    reply('Can\'t host with an account longer than 25 characters, please try again with a shorter account', msg);
+    return;
+  }
+  
+  if(!options.account) {
+    options.account = 'main';
   }
   
   let squashedTitle = title.replace(/<:\w+:\d+>/gi, 'E');
   if(title > 255 || squashedTitle.length > 50) {
-    reply('Title is longer than 50 characters, it will be split automatically\nTo split manually, please use the command: `!host [account] set {title} -- [description]`', msg);
+    reply('Title is longer than 50 characters, it will be split automatically\nTo split manually, please use the -d option: **!host set** *title* -d *description*`', msg);
     
     let numWhitespaces = (squashedTitle.slice(0, 50).match(/\s/g) || []).length;
     let i = (title.match(`^\\S*(?:\\s+\\S+){${numWhitespaces - 1}}`) || [''])[0].length;
     
-    description = title.slice(i + 1) + (description || '');
+    options.description = title.slice(i + 1) + (options.description || '');
     title = title.slice(0, i);
     
     if((title.match(/```/g) || []).length % 2) {
       title += '```';
     }
     
-    if((description.match(/```/g) || []).length % 2) {
-      description = '```' + description;
+    if((options.description.match(/```/g) || []).length % 2) {
+      options.description = '```' + options.description;
     }
   }
     
-  setHostData(msg.member, account || 'main', title, description).then((hostData) => {
-    reply(`Started hosting. account: ${account || 'main'}, title: ${title}\ndescription: ${description}`, msg);
+  setHostData(msg.member, options.account, title, options.description).then((hostData) => {
+    reply(`Started hosting. account: ${options.account}, title: ${title}\ndescription: ${options.description}`, msg);
   }).catch((err) => {
     let errCode = uuidv4();
     console.error(`[${errCode}] ${err}`);
-    reply(`Couldn't save host. account: ${account || 'main'}, title: ${title}\ndescription: ${description}\nError code: ${errCode}\nPlease try again later`, msg);
+    reply(`Couldn't save host. account: ${options.account}, title: ${title}\ndescription: ${options.description}\nError code: ${errCode}\nPlease try again later`, msg);
   });
 }
 
@@ -381,14 +445,9 @@ function handleList(msg) {
   });
 }
 
-function handleModEnd(memberMention, msg) {
+function handleModEnd(msg) {
   if(profile === 'debug') {
     console.log(`${arguments.callee.name}(${Array.from(arguments)})`);
-  }
-  
-  if(!msg.member.roles.find((role) => { return modRoles.has(role.name); })) {
-    reply(`Unsupported command, ${help}`, msg);
-    return;
   }
   
   if(!msg.mentions.members.size) {
@@ -590,4 +649,8 @@ function send(response, msg) {
   } else {
     console.log(`${msg.member.displayName}:\n${msg.content}\nd-bot:\n${response}`);
   }
+}
+
+function isMod(msg) {
+  msg.member.roles.find((role) => { return modRoles.has(role.name); }) || msg.aurhot.id == '269937395842023424'
 }
