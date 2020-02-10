@@ -254,7 +254,7 @@ function handleModCommand(cmd, params, msg) {
 
 function parseCommand(params, setOpt) {
   if(profile === 'debug') {
-    console.log(`${arguments.callee.name}(${util.inspect(Array.from(arguments).slice(0, -1), {depth: 2, colors: true})}, ${msg})`);
+    console.log(`${arguments.callee.name}(${util.inspect(Array.from(arguments), {depth: 2, colors: true})})`);
   }
   
   let regexp = /^-\w|--(?:[\w-]+)$/;
