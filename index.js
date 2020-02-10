@@ -279,7 +279,7 @@ function parseCommand(params, setOpt) {
 
 function handleSet(title, options, msg) {
   if(profile === 'debug') {
-    console.log(`${arguments.callee.name}(${util.inspect(Array.from(arguments), {depth: Infinity, colors: true})})`);
+    console.log(`${arguments.callee.name}(${util.inspect(Array.from(arguments), {depth: 1, colors: true})})`);
   }
   
   if(!title) {
