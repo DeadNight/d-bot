@@ -246,7 +246,7 @@ function handleModCommand(cmd, params, msg) {
 
 function parseCommand(params, setOpt) {
   let regexp = /^-\w|--(?:[\w-]+)$/;
-  let i = params.find((p) => p.test(return regexp.test(p)));
+  let i = params.find((p) => p.test(regexp.test(p)));
   
   if(i < 0) {
     return [params.join(' '), {}];
