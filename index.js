@@ -279,7 +279,7 @@ function parseCommand(params, setOpt) {
 
 function handleSet(title, options, msg) {
   if(profile === 'debug') {
-    console.log(`${arguments.callee.name}(${Array.from(arguments)})`);
+    console.log(`${arguments.callee.name}(${util.inspect(Array.from(arguments), {depth: Infinity, colors: true})})`);
   }
   
   if(!title) {
@@ -326,7 +326,7 @@ function handleSet(title, options, msg) {
 
 function handleUp(account, code, msg) {
   if(profile === 'debug') {
-    console.log(`${arguments.callee.name}(${Array.from(arguments)})`);
+    console.log(`${arguments.callee.name}(${util.inspect(Array.from(arguments), {depth: Infinity, colors: true})})`);
   }
   
   if(account === 'all') {
@@ -365,7 +365,7 @@ function handleUp(account, code, msg) {
 
 function handleEnd(account, msg) {
   if(profile === 'debug') {
-    console.log(`${arguments.callee.name}(${Array.from(arguments)})`);
+    console.log(`${arguments.callee.name}(${util.inspect(Array.from(arguments), {depth: Infinity, colors: true})})`);
   }
   
   if(account === 'all') {
@@ -410,7 +410,7 @@ function handleEnd(account, msg) {
 
 function handleList(msg) {
   if(profile === 'debug') {
-    console.log(`${arguments.callee.name}(${Array.from(arguments)})`);
+    console.log(`${arguments.callee.name}(${util.inspect(Array.from(arguments), {depth: Infinity, colors: true})})`);
   }
   
   if(msg.guild.name === '🌽 Land of the Corn 🌽') {
@@ -448,7 +448,7 @@ function handleList(msg) {
 
 function handleModEnd(msg) {
   if(profile === 'debug') {
-    console.log(`${arguments.callee.name}(${Array.from(arguments)})`);
+    console.log(`${arguments.callee.name}(${util.inspect(Array.from(arguments), {depth: Infinity, colors: true})})`);
   }
   
   if(!msg.mentions.members.size) {
@@ -467,7 +467,7 @@ function handleModEnd(msg) {
 
 function getGuildData(guild) {
   if(profile === 'debug') {
-    console.log(`${arguments.callee.name}(${Array.from(arguments)})`);
+    console.log(`${arguments.callee.name}(${util.inspect(Array.from(arguments), {depth: Infinity, colors: true})})`);
   }
   
   return new Promise((resolve, reject) => {
@@ -509,7 +509,7 @@ function getGuildData(guild) {
 
 function getMemberData(member) {
   if(profile === 'debug') {
-    console.log(`${arguments.callee.name}(${Array.from(arguments)})`);
+    console.log(`${arguments.callee.name}(${util.inspect(Array.from(arguments), {depth: Infinity, colors: true})})`);
   }
   
   return new Promise((resolve, reject) => {
@@ -532,7 +532,7 @@ function getMemberData(member) {
 
 function getHostData(member, account) {
   if(profile === 'debug') {
-    console.log(`${arguments.callee.name}(${Array.from(arguments)})`);
+    console.log(`${arguments.callee.name}(${util.inspect(Array.from(arguments), {depth: Infinity, colors: true})})`);
   }
   
   return new Promise((resolve, reject) => {
@@ -546,7 +546,7 @@ function getHostData(member, account) {
 
 function setHostData(member, account, title, description) {
   if(profile === 'debug') {
-    console.log(`${arguments.callee.name}(${Array.from(arguments)})`);
+    console.log(`${arguments.callee.name}(${util.inspect(Array.from(arguments), {depth: Infinity, colors: true})})`);
   }
   
   return new Promise((resolve, reject) => {
@@ -581,7 +581,7 @@ function setHostData(member, account, title, description) {
 
 function removeHostData(member, account) {
   if(profile === 'debug') {
-    console.log(`${arguments.callee.name}(${Array.from(arguments)})`);
+    console.log(`${arguments.callee.name}(${util.inspect(Array.from(arguments), {depth: Infinity, colors: true})})`);
   }
   
   return new Promise((resolve, reject) => {
