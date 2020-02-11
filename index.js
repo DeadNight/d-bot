@@ -479,6 +479,7 @@ function handleModEnd(msg) {
   
   if(!msg.mentions.members.size) {
     reply(`Please mention members for whom to end hosts\nCommand: !host mod-end {mention} [mention...]`, msg);
+    return;
   }
   
   let member = msg.mentions.members.first();
