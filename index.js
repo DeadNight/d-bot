@@ -321,6 +321,8 @@ function parseCommand(params, opts) {
   let text;
   if(i > 0) {
     text = params.splice(0, i).join(' ');
+  } else if(i == 0) {
+    text = '';
   } else {
     text = params.splice(0).join(' ');
   }
