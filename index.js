@@ -234,7 +234,11 @@ function handleModCommand(cmd, params, msg) {
     case undefined:
     case 'h':
     case 'help':
-      reply(help.mod.help, msg);
+      if(help.mod[params[0]]) {
+        reply(help.mod[params[0]], msg);
+      } else {
+        reply(help.mod.help, msg);
+      }
       break;
     
     case 'e':
