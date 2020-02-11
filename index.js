@@ -477,7 +477,7 @@ function handleEnd(options, msg) {
     return;
   }
   
-  if(account === 'all') {
+  if(options.all) {
     getMemberData(msg.member).then((memberData) => {
       if(memberData.hosts.size) {
         removeHostData(msg.member).then((count) => {
