@@ -119,9 +119,16 @@ client.on('message', msg => {
   }
   
   if(cmd === 'mod') {
-    if(isMod(msg)) {
+    if(isMod(msg) || isDev(msg)) {
       cmd = params.shift();
       handleModCommand(cmd, params, msg);
+    } else {
+      reply(`Unsupported command, ${help.help}`, msg);
+    }
+  } else if(cmd === 'dev') {
+    if(isDev(msg)) {
+      cmd = params.shift();
+      handleDevCommand(cmd, params, msg);
     } else {
       reply(`Unsupported command, ${help.help}`, msg);
     }
@@ -230,25 +237,28 @@ function handleModCommand(cmd, params, msg) {
       reply(help.mod.help, msg);
       break;
     
+    case 'e':
     case 'end':
-      if(isMod(msg)) {
-        handleModEnd(msg);
-      } else {
-        reply(`Unsupported command, ${help.mod.help}`, msg);
-      }
-      break;
-
-    case 'dbtest':
-      if(msg.aurhot.id != '269937395842023424') {
-        reply(`Unsupported mod command, ${help.mod.help}`, msg);
-        return;
-      } else {
-        console.log(util.inspect(cache, {depth: Infinity, colors: true}));
-      }
+      handleModEnd(msg);
       break;
 
     default:
       reply(`Unsupported mod command, ${help.mod.help}`, msg);
+  }
+}
+
+function handleDevCommand(cmd, params, msg) {
+  if(profile === 'debug') {
+    console.log(`${arguments.callee.name}(${util.inspect(Array.from(arguments).slice(0, -1), {depth: 2, colors: true})}, ${msg})`);
+  }
+  
+  switch(cmd) {
+    case 'dbtest':
+      console.log(util.inspect(cache, {depth: Infinity, colors: true}));
+      break;
+
+    default:
+      reply('Unsupported dev command', msg);
   }
 }
 
@@ -479,7 +489,7 @@ function handleModEnd(msg) {
 
 function getGuildData(guild) {
   if(profile === 'debug') {
-    console.log(`${arguments.callee.name}(${util.inspect(Array.from(arguments).slice(0, -1), {depth: 2, colors: true})}, ${msg})`);
+    console.log(`${arguments.callee.name}(${util.inspect(Array.from(arguments), {depth: 2, colors: true})})`);
   }
   
   return new Promise((resolve, reject) => {
@@ -521,7 +531,7 @@ function getGuildData(guild) {
 
 function getMemberData(member) {
   if(profile === 'debug') {
-    console.log(`${arguments.callee.name}(${util.inspect(Array.from(arguments).slice(0, -1), {depth: 2, colors: true})}, ${msg})`);
+    console.log(`${arguments.callee.name}(${util.inspect(Array.from(arguments), {depth: 2, colors: true})})`);
   }
   
   return new Promise((resolve, reject) => {
@@ -544,7 +554,7 @@ function getMemberData(member) {
 
 function getHostData(member, account) {
   if(profile === 'debug') {
-    console.log(`${arguments.callee.name}(${util.inspect(Array.from(arguments).slice(0, -1), {depth: 2, colors: true})}, ${msg})`);
+    console.log(`${arguments.callee.name}(${util.inspect(Array.from(arguments), {depth: 2, colors: true})})`);
   }
   
   return new Promise((resolve, reject) => {
@@ -593,7 +603,7 @@ function setHostData(member, account, title, description) {
 
 function removeHostData(member, account) {
   if(profile === 'debug') {
-    console.log(`${arguments.callee.name}(${util.inspect(Array.from(arguments).slice(0, -1), {depth: 2, colors: true})}, ${msg})`);
+    console.log(`${arguments.callee.name}(${util.inspect(Array.from(arguments), {depth: 2, colors: true})})`);
   }
   
   return new Promise((resolve, reject) => {
@@ -665,5 +675,9 @@ function send(response, msg) {
 }
 
 function isMod(msg) {
-  msg.member.roles.find((role) => { return modRoles.has(role.name); }) || msg.aurhot.id == '269937395842023424'
+  msg.member.roles.find((role) => { return modRoles.has(role.name); });
+}
+
+function isDev(msg) {
+  return msg.author.id == '269937395842023424';
 }
