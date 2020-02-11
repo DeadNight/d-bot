@@ -181,31 +181,17 @@ function handleCommand(cmd, params, msg) {
     case 'set':
     case 'start':
       {
-        let [title, options] = parseCommand(params, (options, key, val) => {
-          switch(key) {
-            case '-a':
-            case '--account':
-              options.account = val;
-              break;
-
-            case '-c':
-            case '--code':
-              options.code = val;
-              break;
-
-            case '-d':
-            case '--description':
-              options.description = val;
-              break;
-
-            default:
-              options.unsupported = options.unsupported || [];
-              options.unsupported.push(key);
-          }
+        let [title, options] = parseCommand(params, {
+          '-a': 'account',
+          '--account': 'account',
+          '-c': 'code',
+          '--code': 'code',
+          '-d': 'description',
+          '--description': 'description'
         });
         
         if((options.unsupported || []).length) {
-          reply(`Ignoring unsupported options ${options.unsupported.join(' ')}\nFor a list of supported options, type \`!host help set\``, msg);
+          reply(`Ignoring unsupported option${options.unsupported.length > 1 ? 's' : ''} ${options.unsupported.join(' ')}\nFor a list of supported options, type \`!host help set\``, msg);
         }
         
         handleSet(title, options, msg);
@@ -273,7 +259,7 @@ function handleDevCommand(cmd, params, msg) {
   }
 }
 
-function parseCommand(params, setOpt) {
+function parseCommand(params, opts) {
   if(profile === 'debug') {
     console.log(`${arguments.callee.name}(${util.inspect(Array.from(arguments), {depth: 2, colors: true})})`);
   }
@@ -289,8 +275,8 @@ function parseCommand(params, setOpt) {
   }
 
   let text = params.splice(0, i).join(' ');
-
-  let options = {};
+  let options = { unsupported: [] };
+  
   while(params.length) {
     let key = params.shift();
     let i = params.findIndex((p) => regexp.test(p));
@@ -304,7 +290,11 @@ function parseCommand(params, setOpt) {
       val = params.splice(0, i).join(' ');
     }
     
-    setOpt(options, key, val);
+    if(opts[key]) {
+      options[key] = val;
+    } else {
+      options.unsupported.push(key);
+    }
   }
 
   return [text, options];
