@@ -589,7 +589,7 @@ Please try again later`, msg);
       member = msg.member;
     }
     
-    getMemberData(msg.member).then((memberData) => {
+    getMemberData(member).then((memberData) => {
       let userTag = msg.guild.members.get(member.id).user.tag;
       
       if(!memberData.hosts.size) {
