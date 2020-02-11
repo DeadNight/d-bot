@@ -388,6 +388,10 @@ function handleSet(title, options, msg) {
       title += '```';
     }
     
+    if(/^`+$/.test(options.description)) {
+      options.description = '';
+    }
+    
     if((options.description.match(/```/g) || []).length % 2) {
       options.description = '```' + options.description;
     }
