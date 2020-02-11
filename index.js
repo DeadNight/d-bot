@@ -291,7 +291,7 @@ function parseCommand(params, opts) {
     }
     
     if(opts[key]) {
-      options[key] = val;
+      options[opts[key]] = val;
     } else {
       options.unsupported.push(key);
     }
