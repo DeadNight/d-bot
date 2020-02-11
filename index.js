@@ -585,14 +585,20 @@ Please try again later`, msg);
     }
     
     getMemberData(msg.member).then((memberData) => {
-      if(memberData.hosts.size) {
-        let userTag = msg.guild.members.get(member.id).user.tag;
-        let response = `${userTag} is hosting:`;
-
-        memberData.hosts.forEach((hostData, account) => {
-          response += `\n${account}: ${hostData.title}`;
-        });
+      let userTag = msg.guild.members.get(member.id).user.tag;
+      
+      if(!memberData.hosts.size) {
+        reply(`${userTag} is not hosting any raids at the moment`, msg);
+        return;
       }
+      
+      let response = `${userTag} is hosting:`;
+
+      memberData.hosts.forEach((hostData, account) => {
+        response += `\n${account}: ${hostData.title}`;
+      });
+
+      reply(response, msg);
     }).catch((err) => {
       let errCode = uuidv4();
       console.error(`[${errCode}] ${err}`);
