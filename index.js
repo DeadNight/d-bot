@@ -310,17 +310,20 @@ function parseCommand(params, opts) {
     console.log(`${arguments.callee.name}(${util.inspect(Array.from(arguments), {depth: 2, colors: true})})`);
   }
   
+  if(!params.length) {
+    return ['', {}];
+  }
+  
   let regexp = /^-\w|--(?:[\w-]+)$/;
   let i = params.findIndex((p) => regexp.test(p));
   
-  if(i < 0) {
-    return [params.join(' '), {}];
-    return;
-  } else if(i == 0) {
+  let text;
+  if(i > 0) {
+    text = params.splice(0, i).join(' ');
+  } else {
     text = '';
   }
-
-  let text = params.splice(0, i).join(' ');
+  
   let options = { unsupported: [] };
   
   while(params.length) {
