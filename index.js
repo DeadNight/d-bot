@@ -219,6 +219,7 @@ function handleCommand(cmd, params, msg) {
 
     case 'e':
     case 'end':
+    case 'stop':
       {
         let [title, options] = parseCommand(params, {
           '-a': 'account',
