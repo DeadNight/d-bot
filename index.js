@@ -449,8 +449,7 @@ Please try again later`, msg);
       if(hostData) {
         send(`${msg.member.displayName}'s raid is now up
 account: ${options.account}
-${hostData.title}
-${hostData.desc}
+${hostData.title} ${hostData.desc}
 Code: ${options.code}`, msg);
       } else {
         reply(`you are not hosting a raid from account ${options.account} at the moment
