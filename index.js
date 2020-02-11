@@ -558,7 +558,7 @@ function getHostData(member, account) {
 
 function setHostData(member, account, title, description) {
   if(profile === 'debug') {
-    console.log(`${arguments.callee.name}(${util.inspect(Array.from(arguments).slice(0, -1), {depth: 2, colors: true})}, ${msg})`);
+    console.log(`${arguments.callee.name}(${util.inspect(Array.from(arguments), {depth: 2, colors: true})})`);
   }
   
   return new Promise((resolve, reject) => {
