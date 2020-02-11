@@ -489,7 +489,7 @@ function handleModEnd(msg) {
 
 function getGuildData(guild) {
   if(profile === 'debug') {
-    console.log(`${arguments.callee.name}(${util.inspect(Array.from(arguments), {depth: 2, colors: true})})`);
+    console.log(`${arguments.callee.name}(${Array.from(arguments)})`);
   }
   
   return new Promise((resolve, reject) => {
@@ -531,7 +531,7 @@ function getGuildData(guild) {
 
 function getMemberData(member) {
   if(profile === 'debug') {
-    console.log(`${arguments.callee.name}(${util.inspect(Array.from(arguments), {depth: 2, colors: true})})`);
+    console.log(`${arguments.callee.name}(${Array.from(arguments)})`);
   }
   
   return new Promise((resolve, reject) => {
@@ -554,7 +554,7 @@ function getMemberData(member) {
 
 function getHostData(member, account) {
   if(profile === 'debug') {
-    console.log(`${arguments.callee.name}(${util.inspect(Array.from(arguments), {depth: 2, colors: true})})`);
+    console.log(`${arguments.callee.name}(${Array.from(arguments)})`);
   }
   
   return new Promise((resolve, reject) => {
@@ -568,7 +568,7 @@ function getHostData(member, account) {
 
 function setHostData(member, account, title, description) {
   if(profile === 'debug') {
-    console.log(`${arguments.callee.name}(${util.inspect(Array.from(arguments), {depth: 2, colors: true})})`);
+    console.log(`${arguments.callee.name}(${Array.from(arguments)})`);
   }
   
   return new Promise((resolve, reject) => {
@@ -603,7 +603,7 @@ function setHostData(member, account, title, description) {
 
 function removeHostData(member, account) {
   if(profile === 'debug') {
-    console.log(`${arguments.callee.name}(${util.inspect(Array.from(arguments), {depth: 2, colors: true})})`);
+    console.log(`${arguments.callee.name}(${Array.from(arguments)})`);
   }
   
   return new Promise((resolve, reject) => {
