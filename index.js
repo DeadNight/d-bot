@@ -325,11 +325,11 @@ function parseCommand(params, opts) {
   
   while(params.length) {
     let key = params.shift();
+    let val;
     
     if(params.length) {
       let i = params.findIndex((p) => regexp.test(p));
-
-      let val;
+      
       if(i < 0) {
         val = params.splice(0).join(' ');
       } else if(i == 0) {
