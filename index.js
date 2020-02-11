@@ -305,22 +305,22 @@ function handleSet(title, options, msg) {
   }
   
   if(!title) {
-    reply('Can\'t set a raid for hosting without a title\nCommand: **!host set** *title* *options*', msg);
+    reply('can\'t set a raid for hosting without a title\nCommand: **!host set** *title* *options*', msg);
     return;
   }
   
   if(options.account && options.account.length > 25) {
-    reply('Can\'t host with an account longer than 25 characters, please try again with a shorter account', msg);
+    reply('can\'t host with an account longer than 25 characters, please try again with a shorter account', msg);
     return;
   }
   
-  if(!options.account) {
-    options.account = 'main';
-  }
+  options.account = options.account || 'main';
+  options.code = options.code || 'none';
+  options.description = options.description || '';
   
   let squashedTitle = title.replace(/<:\w+:\d+>/gi, 'E');
   if(title > 255 || squashedTitle.length > 50) {
-    reply('Title is longer than 50 characters, it will be split automatically\nTo split manually, please use the -d option: **!host set** *title* -d *description*`', msg);
+    reply('title is longer than 50 characters, it will be split automatically\nTo split manually, please use the -d option: **!host set** *title* -d *description*`', msg);
     
     let numWhitespaces = (squashedTitle.slice(0, 50).match(/\s/g) || []).length;
     let i = (title.match(`^\\S*(?:\\s+\\S+){${numWhitespaces - 1}}`) || [''])[0].length;
@@ -337,12 +337,12 @@ function handleSet(title, options, msg) {
     }
   }
     
-  setHostData(msg.member, options.account, title, options.description).then((hostData) => {
-    reply(`Started hosting. account: ${options.account}, title: ${title}\ndescription: ${options.description}`, msg);
+  setHostData(msg.member, options.account, title, options.code, options.description).then((hostData) => {
+    reply(`started hosting. account: ${options.account}, title: ${title}\ndefault code: ${options.code}\ndescription: ${options.description}`, msg);
   }).catch((err) => {
     let errCode = uuidv4();
     console.error(`[${errCode}] ${err}`);
-    reply(`Couldn't save host. account: ${options.account}, title: ${title}\ndescription: ${options.description}\nError code: ${errCode}\nPlease try again later`, msg);
+    reply(`couldn't save host. account: ${options.account}, title: ${title}\ndefault code: ${options.code}\ndescription: ${options.description}\nError code: ${errCode}\nPlease try again later`, msg);
   });
 }
 
@@ -566,7 +566,7 @@ function getHostData(member, account) {
   });
 }
 
-function setHostData(member, account, title, description) {
+function setHostData(member, account, title, code, description) {
   if(profile === 'debug') {
     console.log(`${arguments.callee.name}(${Array.from(arguments)})`);
   }
@@ -575,14 +575,15 @@ function setHostData(member, account, title, description) {
     getMemberData(member).then((memberData) => {
       let hostData = {
         title: title,
+        code: code,
         desc: description,
         start: Date.now()
       };
       
       if(process.env.profile === 'prod') {
         dbConnection.query({
-          sql: 'Replace Into `hosts` Set `guildId`=?, `memberId`=?, `account`=?, `title`=?, `desc`=?, `start`=?',
-          values: [member.guild.id, member.id, account, hostData.title, hostData.desc, hostData.start]
+          sql: 'Replace Into `hosts` Set `guildId`=?, `memberId`=?, `account`=?, `title`=?, `code`=?, `desc`=?, `start`=?',
+          values: [member.guild.id, member.id, account, hostData.title, hostData.code, hostData.desc, hostData.start]
         }, (err, results) => {
           if(err) {
             reject(err);
