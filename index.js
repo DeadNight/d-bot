@@ -322,7 +322,7 @@ function parseCommand(params, opts) {
   if(i > 0) {
     text = params.splice(0, i).join(' ');
   } else {
-    text = params.join(' ');
+    text = params.splice(0).join(' ');
   }
   
   let options = { unsupported: [] };
