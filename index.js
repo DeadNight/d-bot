@@ -325,15 +325,20 @@ function parseCommand(params, opts) {
   
   while(params.length) {
     let key = params.shift();
-    let i = params.findIndex((p) => regexp.test(p));
+    
+    if(params.length) {
+      let i = params.findIndex((p) => regexp.test(p));
 
-    let val;
-    if(i < 0) {
-      val = params.splice(0).join(' ');
-    } else if(i == 0) {
-      val = true;
+      let val;
+      if(i < 0) {
+        val = params.splice(0).join(' ');
+      } else if(i == 0) {
+        val = true;
+      } else {
+        val = params.splice(0, i).join(' ');
+      }
     } else {
-      val = params.splice(0, i).join(' ');
+      val = true;
     }
     
     if(opts[key]) {
@@ -579,7 +584,7 @@ Please try again later`, msg);
     getMemberData(msg.member).then((memberData) => {
       if(memberData.hosts.size) {
         let userTag = msg.guild.members.get(member.id).user.tag;
-        response += `${userTag} is hosting:`;
+        let response = `${userTag} is hosting:`;
 
         memberData.hosts.forEach((hostData, account) => {
           response += `\n${account}: ${hostData.title}`;
