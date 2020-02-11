@@ -130,14 +130,14 @@ client.on('message', msg => {
       cmd = params.shift();
       handleModCommand(cmd, params, msg);
     } else {
-      reply(`Unsupported command, ${help.help}`, msg);
+      reply('unsupported command\nFor a list of supported commands, type `!host help`', msg);
     }
   } else if(cmd === 'dev') {
     if(isDev(msg)) {
       cmd = params.shift();
       handleDevCommand(cmd, params, msg);
     } else {
-      reply(`Unsupported command, ${help.help}`, msg);
+      reply('unsupported command\nFor a list of supported commands, type `!host help`', msg);
     }
   } else {
     handleCommand(cmd, params, msg);
@@ -191,7 +191,7 @@ function handleCommand(cmd, params, msg) {
         });
         
         if((options.unsupported || []).length) {
-          reply(`Ignoring unsupported option${options.unsupported.length > 1 ? 's' : ''} ${options.unsupported.join(' ')}\nFor a list of supported options, type \`!host help set\``, msg);
+          reply(`ignoring unsupported option${options.unsupported.length > 1 ? 's' : ''} ${options.unsupported.join(' ')}\nFor a list of supported options, type \`!host help set\``, msg);
         }
         
         handleSet(title, options, msg);
@@ -200,27 +200,69 @@ function handleCommand(cmd, params, msg) {
 
     case 'u':
     case 'up':
-      handleUp(account, params.join(' '), msg);
+      {
+        let [title, options] = parseCommand(params, {
+          '-a': 'account',
+          '--account': 'account',
+          '-c': 'code',
+          '--code': 'code',
+          '--all': 'all'
+        });
+        
+        if((options.unsupported || []).length) {
+          reply(`ignoring unsupported option${options.unsupported.length > 1 ? 's' : ''} ${options.unsupported.join(' ')}\nFor a list of supported options, type \`!host help up\``, msg);
+        }
+        
+        handleUp(options, msg);
+      }
       break;
 
     case 'e':
     case 'end':
-      handleEnd(account, msg);
+      {
+        let [title, options] = parseCommand(params, {
+          '-a': 'account',
+          '--account': 'account',
+          '--all': 'all'
+        });
+        
+        if((options.unsupported || []).length) {
+          reply(`ignoring unsupported option${options.unsupported.length > 1 ? 's' : ''} ${options.unsupported.join(' ')}\nFor a list of supported options, type \`!host help end\``, msg);
+        }
+        
+        handleEnd(options, msg);
+      }
       break;
 
     case 'l':
     case 'list':
-      handleList(msg);
+      {
+        let [title, options] = parseCommand(params, {
+          '-m': 'member',
+          '--member': 'member',
+          '--all': 'all'
+        });
+        
+        if((options.unsupported || []).length) {
+          reply(`ignoring unsupported option${options.unsupported.length > 1 ? 's' : ''} ${options.unsupported.join(' ')}\nFor a list of supported options, type \`!host help list\``, msg);
+        }
+        
+        handleList(options, msg);
+      }
       break;
 
     default:
-      reply(`Unsupported command, ${help.help}`, msg);
+      reply('unsupported command\nFor a list of supported commands, type `!host help`', msg);
   }
 }
 
 function handleModCommand(cmd, params, msg) {
   if(profile === 'debug') {
     console.log(`${arguments.callee.name}(${util.inspect(Array.from(arguments).slice(0, -1), {depth: 2, colors: true})}, ${msg})`);
+  }
+  
+  if(!isMod(msg) && !isDev(msg)) {
+    return;
   }
   
   switch(cmd) {
@@ -240,7 +282,7 @@ function handleModCommand(cmd, params, msg) {
       break;
 
     default:
-      reply(`Unsupported mod command, ${help.mod.help}`, msg);
+      reply('unsupported mod command\nFor a list of supported mod commands, type `!host mod help`', msg);
   }
 }
 
@@ -249,13 +291,17 @@ function handleDevCommand(cmd, params, msg) {
     console.log(`${arguments.callee.name}(${util.inspect(Array.from(arguments).slice(0, -1), {depth: 2, colors: true})}, ${msg})`);
   }
   
+  if(!isDev(msg)) {
+    return;
+  }
+  
   switch(cmd) {
     case 'dbtest':
       console.log(util.inspect(cache, {depth: Infinity, colors: true}));
       break;
 
     default:
-      reply('Unsupported dev command', msg);
+      reply('unsupported dev command', msg);
   }
 }
 
@@ -306,12 +352,12 @@ function handleSet(title, options, msg) {
   }
   
   if(!title) {
-    reply('can\'t set a raid for hosting without a title\nCommand: **!host set** *title* *options*', msg);
+    reply('can\'t set a raid for hosting without a title, please try again\nFor more info, please type `!host help set`', msg);
     return;
   }
   
   if(options.account && options.account.length > 25) {
-    reply('can\'t host with an account longer than 25 characters, please try again with a shorter account', msg);
+    reply('can\'t host with an account name longer than 25 characters, please try again with a shorter account name', msg);
     return;
   }
   
@@ -321,7 +367,7 @@ function handleSet(title, options, msg) {
   
   let squashedTitle = title.replace(/<:\w+:\d+>/gi, 'E');
   if(title > 255 || squashedTitle.length > 50) {
-    reply('title is longer than 50 characters, it will be split automatically\nTo split manually, please use the -d option: **!host set** *title* -d *description*`', msg);
+    reply('title is longer than 50 characters, it will be split automatically\nTo split manually, please use the *-d* option. For more info, please type `!host help set`', msg);
     
     let numWhitespaces = (squashedTitle.slice(0, 50).match(/\s/g) || []).length;
     let i = (title.match(`^\\S*(?:\\s+\\S+){${numWhitespaces - 1}}`) || [''])[0].length;
@@ -339,20 +385,33 @@ function handleSet(title, options, msg) {
   }
     
   setHostData(msg.member, options.account, title, options.code, options.description).then((hostData) => {
-    reply(`started hosting. account: ${options.account}, title: ${title}\ndefault code: ${options.code}\ndescription: ${options.description}`, msg);
+    reply(`started hosting. account: ${options.account}, title: ${title}
+default code: ${options.code}
+description: ${options.description}`, msg);
   }).catch((err) => {
     let errCode = uuidv4();
     console.error(`[${errCode}] ${err}`);
-    reply(`couldn't save host. account: ${options.account}, title: ${title}\ndefault code: ${options.code}\ndescription: ${options.description}\nError code: ${errCode}\nPlease try again later`, msg);
+    reply(`couldn't save host. account: ${options.account}, title: ${title}
+default code: ${options.code}
+description: ${options.description}
+Error code: ${errCode}
+Please try again later`, msg);
   });
 }
 
-function handleUp(account, code, msg) {
+function handleUp(options, msg) {
   if(profile === 'debug') {
     console.log(`${arguments.callee.name}(${util.inspect(Array.from(arguments).slice(0, -1), {depth: 2, colors: true})}, ${msg})`);
   }
   
-  if(account === 'all') {
+  if(options.all && options.account) {
+    reply('can\'t set both *-a* and *--all*, please try again\nFor more info, please type \`!host help up\`', msg);
+    return;
+  }
+  
+  options.code = options.code || 'none';
+  
+  if(options.all) {
     getMemberData(msg.member).then((memberData) => {
       if(memberData.hosts.size) {
         let response = `${msg.member.displayName}'s raids are now up`;
@@ -361,112 +420,179 @@ function handleUp(account, code, msg) {
           response += `\n${account}: ${hostData.title} ${hostData.desc}`;
         });
         
-        response += `\nCode: ${code || 'none'}`;
+        response += `\nCode: ${options.code}`;
         send(response, msg);
       } else {
-        reply(`You are not hosting at the moment.\nYou can start hosting with the command: \`!host [account] set {title} -- [description]\`.`, msg);
+        reply(`you are not hosting any raids at the moment
+You can start hosting a raid with the command **!host set**
+For more info, please type \`!host help set\``, msg);
       }
     }).catch((err) => {
       let errCode = uuidv4();
       console.error(`[${errCode}] ${err}`);
-      reply(`Couldn't get member data.\nError code: ${errCode}.\nPlease try again later.`, msg);
+      reply(`couldn't get member data
+Error code: ${errCode}
+Please try again later`, msg);
     });
   } else {
-    getHostData(msg.member, account || 'main').then((hostData) => {
+    options.account = options.account || 'main';
+    
+    getHostData(msg.member, options.account || 'main').then((hostData) => {
       if(hostData) {
-        send(`${msg.member.displayName}'s raid is now up\n${account || 'main'}: ${hostData.title} ${hostData.desc}\nCode: ${code || 'none'}`, msg);
+        send(`${msg.member.displayName}'s raid is now up
+account: ${options.account}
+${hostData.title}
+${hostData.desc}
+Code: ${options.code}`, msg);
       } else {
-        reply(`You are not hosting ${account || 'main'} at the moment\nYou can start hosting with the command \`!host [account] set {title} -- [description]\``, msg);
+        reply(`you are not hosting a raid from account ${options.account} at the moment
+You can start hosting a raid with the command **!host set**
+For more info, please type \`!host help set\``, msg);
       }
     }).catch((err) => {
       let errCode = uuidv4();
       console.error(`[${errCode}] ${err}`);
-      reply(`Couldn't get host data for ${account || 'main'}\nError code: ${errCode}\nPlease try again later`, msg);
+      reply(`Couldn't get host data for account ${options.account}
+Error code: ${errCode}
+Please try again later`, msg);
     });
   }
 }
 
-function handleEnd(account, msg) {
+function handleEnd(options, msg) {
   if(profile === 'debug') {
     console.log(`${arguments.callee.name}(${util.inspect(Array.from(arguments).slice(0, -1), {depth: 2, colors: true})}, ${msg})`);
+  }
+  
+  if(options.all && options.account) {
+    reply('can\'t set both *-a* and *--all*, please try again\nFor more info, please type \`!host help end\`', msg);
+    return;
   }
   
   if(account === 'all') {
     getMemberData(msg.member).then((memberData) => {
       if(memberData.hosts.size) {
         removeHostData(msg.member).then((count) => {
-          reply(`Stopped ${count} active hosts`, msg);
+          reply(`stopped hosting ${count} raids`, msg);
         }).catch((err) => {
           let errCode = uuidv4();
           console.error(`[${errCode}] ${err}`);
-          reply(`Couldn't remove host data.\nError code: ${errCode}.\nPlease try again later.`, msg);
+          reply(`couldn't remove host data
+Error code: ${errCode}
+Please try again later`, msg);
         });
       } else {
-        reply(`You are not hosting at the moment`, msg);
+        reply('you are not hosting any raids at the moment', msg);
       }
     }).catch((err) => {
       let errCode = uuidv4();
       console.error(`[${errCode}] ${err}`);
-      reply(`Couldn't get member data.\nError code: ${errCode}.\nPlease try again later.`, msg);
+      reply(`couldn't get member data
+Error code: ${errCode}
+Please try again later.`, msg);
     });
   } else {
-    getHostData(msg.member, account || 'main').then((hostData) => {
+    options.account = options.account || 'main';
+    
+    getHostData(msg.member, options.account).then((hostData) => {
       if(hostData) {
         
-        removeHostData(msg.member, account || 'main').then(() => {
-          reply(`Stopped hosting ${account || 'main'}: ${hostData.title}`, msg);
+        removeHostData(msg.member, options.account).then(() => {
+          reply(`stopped hosting from account ${options.account}`, msg);
         }).catch((err) => {
           let errCode = uuidv4();
           console.error(`[${errCode}] ${err}`);
           reply(`Couldn't remove host data for ${account || 'main'}\nError code: ${errCode}\nPlease try again later`, msg);
         });
       } else {
-        reply(`You are not hosting for ${account || 'main'} at the moment`, msg);
+        reply(`you are not hosting a raid from account ${options.account} at the moment
+For a list of your active raids, please type \`!host list\``, msg);
       }
     }).catch((err) => {
         let errCode = uuidv4();
         console.error(`[${errCode}] ${err}`);
-        reply(`Couldn't get host data\nError code: ${errCode}\nPlease try again later`, msg);
+        reply(`couldn't get host data
+Error code: ${errCode}
+Please try again later`, msg);
     });
   }
 }
 
-function handleList(msg) {
+function handleList(options, msg) {
   if(profile === 'debug') {
     console.log(`${arguments.callee.name}(${util.inspect(Array.from(arguments).slice(0, -1), {depth: 2, colors: true})}, ${msg})`);
   }
   
-  if(msg.guild.name === '🌽 Land of the Corn 🌽') {
-    if(msg.channel.name != 'bot-commands-🤖' && msg.channel.name != 'current-and-upcoming-dens' && msg.channel.name != 'bot-stuff-for-staff') {
-      reply(`Please use the list command at ${msg.guild.channels.find(channel => channel.name === 'bot-commands-🤖')}`, msg)
-      return;
-    }
+  if(options.member && options.all) {
+    reply('can\'t set both *-m* and *--all*, please try again\nFor more info, please type \`!host help list\`', msg);
+    return;
   }
   
-  getGuildData(msg.guild).then((guildData) => {
-    let response = '';
+  if(options.all) {
+    if(msg.guild.name === '🌽 Land of the Corn 🌽') {
+      if(msg.channel.name != 'bot-commands-🤖' && msg.channel.name != 'current-and-upcoming-dens' && msg.channel.name != 'bot-stuff-for-staff') {
+        reply(`Please use the list command at ${msg.guild.channels.find(channel => channel.name === 'bot-commands-🤖')}`, msg)
+        return;
+      }
+    }
+
+    getGuildData(msg.guild).then((guildData) => {
+      let response = '';
+
+      guildData.members.forEach((memberData, memberId) => {
+        if(memberData.hosts.size) {
+          let userTag = msg.guild.members.get(memberId).user.tag;
+          response += `\n---\n${userTag} is hosting:`;
+
+          memberData.hosts.forEach((hostData, account) => {
+            response += `\n${account}: ${hostData.title}`;
+          });
+        }
+      });
+
+      if(response) {
+        reply(`Current hosts:${response}`, msg);
+      } else {
+        reply('There are no active hosts at the moment', msg);
+      }
+    }).catch((err) => {
+        let errCode = uuidv4();
+        console.error(`[${errCode}] ${err}`);
+        reply(`couldn't get guild data
+Error code: ${errCode}
+Please try again later`, msg);
+    }); 
+  } else {
+    let member;
     
-    guildData.members.forEach((memberData, memberId) => {
+    if(options.member) {
+      if(!msg.mentions.members.size) {
+        reply('*-m* option used but no @mention was found\nPlease try again.\nFor more info, please type `!host help list`', msg)
+        return;
+      }
+      
+      member = msg.mentions.members.first();
+    } else {
+      member = msg.member;
+    }
+    
+    getMemberData(msg.member).then((memberData) => {
       if(memberData.hosts.size) {
-        let userTag = msg.guild.members.get(memberId).user.tag;
-        response += `\n---\n${userTag} is hosting:`;
-        
+        let userTag = msg.guild.members.get(member.id).user.tag;
+        response += `${userTag} is hosting:`;
+
         memberData.hosts.forEach((hostData, account) => {
           response += `\n${account}: ${hostData.title}`;
         });
       }
-    });
-
-    if(response) {
-      reply(`Current hosts:${response}`, msg);
-    } else {
-      reply('There are no active hosts at the moment', msg);
-    }
-  }).catch((err) => {
+    }).catch((err) => {
       let errCode = uuidv4();
       console.error(`[${errCode}] ${err}`);
-      reply(`Couldn't get guild data\nError code: ${errCode}\nPlease try again later`, msg);
-  });
+      reply(`couldn't get member data
+Error code: ${errCode}
+Please try again later`, msg);
+    });
+  }
 }
 
 function handleModEnd(msg) {
