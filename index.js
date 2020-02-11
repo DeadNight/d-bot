@@ -825,7 +825,7 @@ function send(response, msg) {
 }
 
 function isMod(msg) {
-  msg.member.roles.find((role) => { return modRoles.has(role.name); });
+  return msg.member.roles.find((role) => { return modRoles.has(role.name); });
 }
 
 function isDev(msg) {
