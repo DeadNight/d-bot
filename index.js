@@ -23,57 +23,62 @@ const help = {
   set: `**!host set** - set a raid for hosting
 __Syntax__
 **!host set** *title* *options*
-  title is required, and can be up to 50 characters long. this title appears when using the **list** command.
+  title is required, and can be up to 50 characters long. appears when using the **list** and **up** commands.
 __Options__
-  **-a, --account** - which account hosts the raid. can set raids from multiple accounts in parallel. default: main
-  **-c, --code** - default code for this raid that will appear when using the **up** command. default: none
-  **-d, --description** - a longer description that will appear after the title when using the **up** command
+  **-a, --account** - for which account hosts to set this raid. can set raids from multiple accounts in parallel. default: main
+  **-c, --code** - default code for this raid. appears when using the **list** and **up** commands. default: none
+  **-d, --description** - a longer description for the raid. appears when using the **up** command
 __Examples__
 Set a host with default options:
 \`!host set Shiny HA Mew\`
 Set a host with custom options:
 \`!host set Shiny HA Mew -a 3ds -c 1234 -d 3IV, timid nature\``,
+  
   up:  `**!host up** - notify that a raid is up
 __Syntax__
 **!host up** *options*
-**!host up all** *options*
 __Options__
-  **-a, --account** - which account hosts the raid. can't set this when using the **up all** command. default: main
+  **-a, --account** - for which account to notify that a raid is up. can't set this when using the *--all* option. default: main
   **-c, --code** - custom code for this raid, overriding the default code for the raid
+  **--all** - notift that all active raids are up. can't set this when using the *-a* option
 __Examples__
 Notify that a raid is up with default options:
 \`!host up\`
 Notify that a raid is up with custom options:
 \`!host up -a 3ds -c 9876\`
 Notify that all raids are up with default code:
-\`!host up all\`
+\`!host up --all\`
 Notify that all raids are up with custom code:
-\`!host up all -c 9876\``,
+\`!host up --all -c 9876\``,
+  
   end: `**!host end** - stop hosting a raid
 __Syntax__
 **!host end** *options*
-**!host end all**
 __Options__
-  **-a, --account** - which account stops hosting the raid. can't set this when using the **end all** command. default: main
+  **-a, --account** - which account stops hosting the raid. can't set this when using the *-all* option. default: main
+  **--all** - stop hosting all raids. can't set this when using the *-a* option
 __Examples__
 Stop hosting a raid from default account 'main':
 \`!host end\`
 Stop hosting a raid from a custom account:
 \`!host end -a 3ds\`
 Stop hosting all raids:
-\`!host end all\``,
-  list: `**!host list** - show a list of currently hosted pokémon
+\`!host end --all\``,
+  
+  list: `**!host list** - show a list of currently hosted raids
 __Syntax__
-**!host list**
-**!host list** \`@mention\`
-**!host list all**
+**!host list** *options*
+__Options__
+  **-m, --member** - for which member to show a list of active raids. can't set this when using the *-all* option
+  **--all** - show all active raids
 __Examples__
 Show a list of your own hosted raids:
 \`!host list\`
 Show a list of a member's hosted raids:
-\`!host list @DeadNight#7922\`
+\`!host list -m @member\`
 Show a list of all hosted raids:
-\`!host list all\``,
+\`!host list --all\``,
+  
   help: `I support the following commands:
 **!host set** - set a pokémon for hosting
 **!host up** - notify that a raid is up
@@ -81,6 +86,7 @@ Show a list of all hosted raids:
 **!host list** - list currently hosted pokémon
 **!host help** - show this help again
 **!host help** *command* - show help for a specific command`,
+  
   mod: {
     end: `**!host mod end** - Force end all hosts of a member
 __Syntax__
@@ -88,6 +94,7 @@ __Syntax__
 __Examples__
 End all hosts of a troll member:
 \`!host mod end @troll\``,
+    
     help: `I support the following mod commands:
 **!host mod end** - Force end all hosts of a member
 **!host mod help** - show this help again
