@@ -317,7 +317,7 @@ function parseCommand(params, opts) {
     return [params.join(' '), {}];
     return;
   } else if(i == 0) {
-    return ['', {}];
+    text = '';
   }
 
   let text = params.splice(0, i).join(' ');
