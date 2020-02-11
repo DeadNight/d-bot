@@ -418,8 +418,6 @@ function handleUp(options, msg) {
     return;
   }
   
-  options.code = options.code || 'none';
-  
   if(options.all) {
     getMemberData(msg.member).then((memberData) => {
       if(memberData.hosts.size) {
@@ -427,9 +425,14 @@ function handleUp(options, msg) {
         
         memberData.hosts.forEach((hostData, account) => {
           response += `\n${account}: ${hostData.title} ${hostData.desc}`;
+          if(!options.code) {
+            response += `\ncode: ${hostData.code || 'none'}`;
+          }
         });
         
-        response += `\nCode: ${options.code}`;
+        if(options.code) {
+          response += `\nCode: ${options.code}`;
+        }
         send(response, msg);
       } else {
         reply(`you are not hosting any raids at the moment
@@ -451,7 +454,7 @@ Please try again later`, msg);
         send(`${msg.member.displayName}'s raid is now up
 account: ${options.account}
 ${hostData.title} ${hostData.desc}
-Code: ${options.code}`, msg);
+Code: ${options.code || hostData.code || 'none'}`, msg);
       } else {
         reply(`you are not hosting a raid from account ${options.account} at the moment
 You can start hosting a raid with the command **!host set**
