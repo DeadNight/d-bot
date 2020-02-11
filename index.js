@@ -321,7 +321,7 @@ function parseCommand(params, opts) {
   if(i > 0) {
     text = params.splice(0, i).join(' ');
   } else {
-    text = '';
+    text = params.join(' ');
   }
   
   let options = { unsupported: [] };
