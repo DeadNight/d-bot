@@ -315,7 +315,7 @@ function parseCommand(params, opts) {
     return ['', {}];
   }
   
-  let regexp = /^-\w|--(?:[\w-]+)$/;
+  let regexp = /^(?:-\w|--\w[\w-]+)$/;
   let i = params.findIndex((p) => regexp.test(p));
   
   let text;
