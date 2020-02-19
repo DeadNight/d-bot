@@ -7,8 +7,24 @@ rapidash
 add the 3ds friend code, IGN: Britany
 \`\`\``;
     
-    let expected = {
-    };
+    let expected = [
+      {
+        prefix: '!h',
+        test: 'test',
+        cmd: 'set',
+        _: 'corny rapidash',
+      },
+      [
+        {
+          flagName: '-a',
+          flagValue: '3ds'
+        },
+        {
+          flagName: '-d',
+          flagValue: '```asciidoc\nrapidash\nadd the 3ds friend code, IGN: Britany\n```'
+        }
+      ]
+    ];
     
     expect(parseCommand(cmd)).toEqual(expected);
   });
@@ -32,6 +48,6 @@ describe('parseFlags', () => {
       description: '```asciidoc\nrapidash\nadd the 3ds friend code, IGN: Britany\n```'
     };
 
-    expect(parseFlags(cmd)).toEqual(expected);
+    expect(parseFlags(flags)).toEqual(expected);
   });
 });
