@@ -4,9 +4,9 @@ describe('regression', () => {
   describe('parseCommand', () => {
     test('should parse correctly', () => {
     let cmd = `!h test set corny rapidash -a 3ds -d \`\`\`asciidoc
-  rapidash
-  add the 3ds friend code, IGN: Britany
-  \`\`\``;
+rapidash
+add the 3ds friend code, IGN: Britany
+\`\`\``;
 
       let expected = [
         {
