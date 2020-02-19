@@ -75,7 +75,7 @@ End all hosts of a troll member:
 const modHelp = `I support the following mod commands:
 **!host mod end** - Force end all hosts of a member
 **!host mod help** - show this help again
-**!host mod help** *command* - show help for a specific mod command;
+**!host mod help** *command* - show help for a specific mod command`;
 
 module.exports = {
   set: set,
