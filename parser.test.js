@@ -7,7 +7,8 @@ describe('parseCommand', () => {
     let expected = [
       {
         prefix: '!h',
-      }
+      },
+      []
     ];
 
     let actual = cleanObject(parseCommand(cmd));
