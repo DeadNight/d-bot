@@ -87,7 +87,6 @@ add the 3ds friend code, IGN: Britany
 + 11/31/31/31/26/31
 < Cursed Body >
 \`\`\``;
-  });
 
     let expected = [
       {
@@ -113,6 +112,7 @@ add the 3ds friend code, IGN: Britany
     let actual = parseCommand(cmd);
 
     expect(actual).toEqual(expected);
+  });
 });
 
 describe('parseFlags', () => {
