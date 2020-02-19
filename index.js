@@ -2,6 +2,7 @@ const Discord = require('discord.js');
 const mysql = require('mysql');
 const uuidv4 = require('uuid/v4');
 const util = require('util');
+const { parseCommand, parseFlags } = require('./parser.js');
 
 const client = new Discord.Client();
 const dbConnection = mysql.createConnection({
@@ -111,7 +112,7 @@ client.on('message', msg => {
     return;
   }
   
-  let [cmd, flags] = parseCommand(msg);  
+  let [cmd, flags] = parseCommand(msg.content);  
 
   if(cmd.prefix !== '!h' && cmd.prefix !== '!host') {
     return;
@@ -300,41 +301,6 @@ function handleDevCommand(cmd, params, msg) {
     default:
       reply('unsupported dev command', msg);
   }
-}
-
-function parseCommand(msg, opts) {
-  if(profile === 'debug') {
-    console.log(`${arguments.callee.name}(${util.inspect(Array.from(arguments).slice(0, -1), {depth: 2, colors: true})}, ${msg})`);
-  }
-  
-  let regexp = /^(?<prefix>!\w+)(?:\s+(?<test>test))?(?:\s+(?<mod>mod))?(?:\s+(?<dev>dev))?\s+(?<cmd>\w+)(?:(?!\s-)\s(?<_>(?:(?!\s--?\w).)+))?|\s(?<flagName>-\w|--\w+)(?:\s(?<flagValue>(?:(?!\s--?\w).)+))?(?=\s--?\w|$)/sg;
-  
-  let matches = msg.content.matchAll(regexp);
-  let [...captures] = matches;
-  
-  let cmd = captures[0].groups;
-  let flags = captures.slice(1).map(f => f.groups);
-  
-  return [cmd, flags];
-}
-
-function parseFlags(flags, opts) {
-  if(profile === 'debug') {
-    console.log(`${arguments.callee.name}(${util.inspect(Array.from(arguments), {depth: 2, colors: true})})`);
-  }
-  
-  let options = {};
-  
-  for(let flag of flags) {
-    if(opts[flag.flagName]) {
-      options[opts[flag.flagName]] = flag.flagValue || true;
-    } else {
-      options.unsupported = options.unsupported || [];
-      options.unsupported.push(flag.flagName);
-    }
-  }
-  
-  return options;
 }
 
 function handleSet(title, options, msg) {
