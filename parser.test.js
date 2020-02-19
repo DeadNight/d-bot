@@ -32,7 +32,7 @@ add the 3ds friend code, IGN: Britany
       expect(actual).toEqual(expected);
     });
     
-    test('set -a -d' () => {
+    test('set -a -d', () => {
       let cmd = `!host set Shiny Litwick -a 3ds -d \`\`\`diff
 - 🌟Litwick
 --- add 3ds friend code, name Levi
