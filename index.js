@@ -304,7 +304,7 @@ function handleDevCommand(cmd, params, msg) {
 
 function parseCommand(msg, opts) {
   if(profile === 'debug') {
-    console.log(`${arguments.callee.name}(${util.inspect(Array.from(arguments), {depth: 2, colors: true})})`);
+    console.log(`${arguments.callee.name}(${util.inspect(Array.from(arguments).slice(0, -1), {depth: 2, colors: true})}, ${msg})`);
   }
   
   let regexp = /^(?<prefix>!\w+)(?:\s+(?<test>test))?(?:\s+(?<mod>mod))?(?:\s+(?<dev>dev))?\s+(?<cmd>\w+)(?:(?!\s-)\s(?<_>(?:(?!\s--?\w).)+))?|\s(?<flagName>-\w|--\w+)(?:\s(?<flagValue>(?:(?!\s--?\w).)+))?(?=\s--?\w|$)/sg;
