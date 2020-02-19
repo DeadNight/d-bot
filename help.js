@@ -65,7 +65,7 @@ const help = `I support the following commands:
 **!host help** - show this help again
 **!host help** *command* - show help for a specific command`;
 
-cosnt modEnd = `**!host mod end** - Force end all hosts of a member
+const modEnd = `**!host mod end** - Force end all hosts of a member
 __Syntax__
 **!host mod end** *@mention*
 __Examples__
