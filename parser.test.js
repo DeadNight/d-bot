@@ -92,13 +92,9 @@ add the 3ds friend code, IGN: Britany
       {
         prefix: '!host',
         cmd: 'set',
-        _: '\`\`\`<✨Polteageist✨>\`\`\`',
+        _: '\`\`\`<✨Polteageist✨>\`\`\`\n',
       },
       [
-        {
-          flagName: '-a',
-          flagValue: '3ds'
-        },
         {
           flagName: '-d',
           flagValue: `\`\`\`
