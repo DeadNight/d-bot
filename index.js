@@ -325,7 +325,7 @@ function parseFlags(flags, opts) {
   
   let options = {};
   
-  for(let flag in flags) {
+  for(let flag of flags) {
     if(opts[flag.flagName]) {
       options[opts[flag.flagName]] = flag.flagValue || true;
     } else {
