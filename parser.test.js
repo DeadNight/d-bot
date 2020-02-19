@@ -77,6 +77,42 @@ add the 3ds friend code, IGN: Britany
 
     expect(actual).toEqual(expected);
   });
+  
+  test('new lines', () => {
+    let cmd = `!host set
+\`\`\`<✨Polteageist✨>\`\`\`
+
+-d
+\`\`\`
++ 11/31/31/31/26/31
+< Cursed Body >
+\`\`\``;
+  });
+
+    let expected = [
+      {
+        prefix: '!host',
+        cmd: 'set',
+        _: '\`\`\`<✨Polteageist✨>\`\`\`',
+      },
+      [
+        {
+          flagName: '-a',
+          flagValue: '3ds'
+        },
+        {
+          flagName: '-d',
+          flagValue: `\`\`\`
++ 11/31/31/31/26/31
+< Cursed Body >
+\`\`\``
+        }
+      ]
+    ];
+
+    let actual = parseCommand(cmd);
+
+    expect(actual).toEqual(expected);
 });
 
 describe('parseFlags', () => {
