@@ -2,7 +2,7 @@ const { parseCommand, parseFlags } = require('./parser.js');
 
 describe('regression', () => {
   describe('parseCommand', () => {
-    test('should parse correctly', () => {
+    test('test set -a -d', () => {
     let cmd = `!h test set corny rapidash -a 3ds -d \`\`\`asciidoc
 rapidash
 add the 3ds friend code, IGN: Britany
@@ -31,10 +31,42 @@ add the 3ds friend code, IGN: Britany
 
       expect(actual).toEqual(expected);
     });
+    
+    test('set -a -d' () => {
+      let cmd = `!host set Shiny Litwick -a 3ds -d \`\`\`diff
+- 🌟Litwick
+--- add 3ds friend code, name Levi
+\`\`\``;
+      
+      let expected = [
+        {
+          prefix: '!host',
+          cmd: 'set',
+          _: 'Shiny Litwick',
+        },
+        [
+          {
+            flagName: '-a',
+            flagValue: '3ds'
+          },
+          {
+            flagName: '-d',
+            flagValue: `\`\`\`diff
+- 🌟Litwick
+--- add 3ds friend code, name Levi
+\`\`\``
+          }
+        ]
+      ];
+      
+      let actual = cleanObject(parseCommand(cmd));
+
+      expect(actual).toEqual(expected);
+    });
   });
 
   describe('parseFlags', () => {
-    test('should parse correctly', () => {
+    test('set -a -d', () => {
       let flags = [
         {
           flagName: '-a',
