@@ -15,6 +15,21 @@ describe('parseCommand', () => {
 
     expect(actual).toEqual(expected);
   });
+  test('empty set', () => {
+    let cmd = '!h set';
+
+    let expected = [
+      {
+        prefix: '!h',
+        cmd: 'set'
+      },
+      []
+    ];
+
+    let actual = parseCommand(cmd);
+
+    expect(actual).toEqual(expected);
+  });
   
   test('test set -a -d', () => {
   let cmd = `!h test set corny rapidash -a 3ds -d \`\`\`asciidoc
