@@ -92,7 +92,7 @@ add the 3ds friend code, IGN: Britany
       {
         prefix: '!host',
         cmd: 'set',
-        _: '\`\`\`<✨Polteageist✨>\`\`\`\n',
+        _: '\`\`\`<✨Polteageist✨>\`\`\`',
       },
       [
         {
