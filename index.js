@@ -319,6 +319,10 @@ function parseCommand(msg, opts) {
 }
 
 function parseFlags(flags, opts) {
+  if(profile === 'debug') {
+    console.log(`${arguments.callee.name}(${util.inspect(Array.from(arguments), {depth: 2, colors: true})})`);
+  }
+  
   let options = {};
   
   for(let flag in flags) {
