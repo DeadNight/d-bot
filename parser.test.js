@@ -51,7 +51,14 @@ add the 3ds friend code, IGN: Britany
         description: '```asciidoc\nrapidash\nadd the 3ds friend code, IGN: Britany\n```'
       };
       
-      let actual = cleanObject(parseFlags(flags));
+      let actual = cleanObject(parseFlags(flags, {
+        '-a': 'account',
+        '--account': 'account',
+        '-c': 'code',
+        '--code': 'code',
+        '-d': 'description',
+        '--description': 'description'
+      }));
 
       expect(actual).toEqual(expected);
     });
