@@ -1,3 +1,7 @@
+const util = require('util');
+
+const profile = process.env.profile || 'dev';
+
 function parseCommand(text, opts) {
   if(profile === 'debug') {
     console.log(`${arguments.callee.name}(${util.inspect(Array.from(arguments).slice(0, -1), {depth: 2, colors: true})}, ${text})`);
