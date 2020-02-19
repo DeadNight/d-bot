@@ -319,6 +319,8 @@ function parseCommand(msg, opts) {
 }
 
 function parseFlags(flags, opts) {
+  let options = {};
+  
   for(let flag in flags) {
     if(opts[flag.flagName]) {
       options[opts[flag.flagName]] = flag.flagValue || true;
