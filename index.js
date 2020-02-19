@@ -25,7 +25,7 @@ __Syntax__
 **!host set** *title* *options*
   title is required, and can be up to 50 characters long. appears when using the **list** and **up** commands.
 __Options__
-  **-a, --account** - for which account hosts to set this raid. can set raids from multiple accounts in parallel. default: main
+  **-a, --account** - for which account to set this raid. can set raids from multiple accounts in parallel. default: main
   **-c, --code** - default code for this raid. appears when using the **list** and **up** commands. default: none
   **-d, --description** - a longer description for the raid. appears when using the **up** command
 __Examples__
@@ -111,36 +111,32 @@ client.on('message', msg => {
     return;
   }
   
-  let [prefix, cmd, ...params] = msg.content.split(' ');
+  let [cmd, flags] = parseCommand(msg);  
 
-  if(prefix !== '!h' && prefix !== '!host') {
+  if(cmd.prefix !== '!h' && cmd.prefix !== '!host') {
     return;
   }
   
-  if(cmd === 'test') {
-    if(profile === 'dev' || profile === 'debug') {
-      cmd = params.shift();
-    } else {
+  if(cmd.test) {
+    if(profile !== 'dev' && profile !== 'debug') {
       return;
     }
   }
   
-  if(cmd === 'mod') {
+  if(cmd.mod) {
     if(isMod(msg) || isDev(msg)) {
-      cmd = params.shift();
-      handleModCommand(cmd, params, msg);
+      handleModCommand(cmd, flags, msg);
     } else {
       reply('unsupported command\nFor a list of supported commands, type `!host help`', msg);
     }
-  } else if(cmd === 'dev') {
+  } else if(cmd.dev) {
     if(isDev(msg)) {
-      cmd = params.shift();
-      handleDevCommand(cmd, params, msg);
+      handleDevCommand(cmd, flags, msg);
     } else {
       reply('unsupported command\nFor a list of supported commands, type `!host help`', msg);
     }
   } else {
-    handleCommand(cmd, params, msg);
+    handleCommand(cmd, flags, msg);
   }
 });
 
@@ -161,17 +157,17 @@ if(profile === 'prod') {
   client.login(process.env.token).catch(console.error);
 }
 
-function handleCommand(cmd, params, msg) {
+function handleCommand(cmd, flags, msg) {
   if(profile === 'debug') {
     console.log(`${arguments.callee.name}(${util.inspect(Array.from(arguments).slice(0, -1), {depth: 2, colors: true})}, ${msg})`);
   }
   
-  switch(cmd) {
+  switch(cmd.cmd) {
     case undefined:
     case 'h':
     case 'help':
-      if(help[params[0]]) {
-        reply(help[params[0]], msg);
+      if(help[cmd._]) {
+        reply(help[cmd._], msg);
       } else {
         reply(help.help, msg);
       }
@@ -181,7 +177,7 @@ function handleCommand(cmd, params, msg) {
     case 'set':
     case 'start':
       {
-        let [title, options] = parseCommand(params, {
+        let options = parseFlags(flags, {
           '-a': 'account',
           '--account': 'account',
           '-c': 'code',
@@ -191,17 +187,17 @@ function handleCommand(cmd, params, msg) {
         });
         
         if((options.unsupported || []).length) {
-          reply(`ignoring unsupported option${options.unsupported.length > 1 ? 's' : ''} ${options.unsupported.join(' ')}\nFor a list of supported options, type \`!host help set\``, msg);
+          reply(`FYI, ignoring unsupported option${options.unsupported.length > 1 ? 's' : ''} ${options.unsupported.join(' ')}`, msg);
         }
         
-        handleSet(title, options, msg);
+        handleSet(cmd._, options, msg);
       }
       break;
 
     case 'u':
     case 'up':
       {
-        let [title, options] = parseCommand(params, {
+        let options = parseFlags(flags, {
           '-a': 'account',
           '--account': 'account',
           '-c': 'code',
@@ -221,7 +217,7 @@ function handleCommand(cmd, params, msg) {
     case 'end':
     case 'stop':
       {
-        let [title, options] = parseCommand(params, {
+        let options = parseFlags(flags, {
           '-a': 'account',
           '--account': 'account',
           '--all': 'all'
@@ -238,7 +234,7 @@ function handleCommand(cmd, params, msg) {
     case 'l':
     case 'list':
       {
-        let [title, options] = parseCommand(params, {
+        let options = parseFlags(flags, {
           '-m': 'member',
           '--member': 'member',
           '--all': 'all'
@@ -266,12 +262,12 @@ function handleModCommand(cmd, params, msg) {
     return;
   }
   
-  switch(cmd) {
+  switch(cmd.cmd) {
     case undefined:
     case 'h':
     case 'help':
-      if(help.mod[params[0]]) {
-        reply(help.mod[params[0]], msg);
+      if(help.mod[cmd._]) {
+        reply(help.mod[cmd._], msg);
       } else {
         reply(help.mod.help, msg);
       }
@@ -296,7 +292,7 @@ function handleDevCommand(cmd, params, msg) {
     return;
   }
   
-  switch(cmd) {
+  switch(cmd.cmd) {
     case 'dbtest':
       console.log(util.inspect(cache, {depth: Infinity, colors: true}));
       break;
@@ -306,55 +302,39 @@ function handleDevCommand(cmd, params, msg) {
   }
 }
 
-function parseCommand(params, opts) {
+function parseCommand(msg, opts) {
+  if(profile === 'debug') {
+    console.log(`${arguments.callee.name}(${util.inspect(Array.from(arguments).slice(0, -1), {depth: 2, colors: true})}, ${msg})`);
+  }
+  
+  let regexp = /^(?<prefix>!\w+)(?:\s+(?<test>test))?(?:\s+(?<mod>mod))?(?:\s+(?<dev>dev))?\s+(?<cmd>\w+)(?:(?!\s-)\s(?<_>(?:(?!\s--?\w).)+))?|\s(?<flagName>-\w|--\w+)(?:\s(?<flagValue>(?:(?!\s--?\w).)+))?(?=\s--?\w|$)/sg;
+  
+  let matches = msg.content.matchAll(regexp);
+  let [...captures] = matches;
+  
+  let cmd = captures[0].groups;
+  let flags = captures.slice(1).map(f => f.groups);
+  
+  return [cmd, flags];
+}
+
+function parseFlags(flags, opts) {
   if(profile === 'debug') {
     console.log(`${arguments.callee.name}(${util.inspect(Array.from(arguments), {depth: 2, colors: true})})`);
   }
   
-  if(!params.length) {
-    return ['', {}];
-  }
+  let options = {};
   
-  let regexp = /^(?:-\w|--\w[\w-]+)$/;
-  let i = params.findIndex((p) => regexp.test(p));
-  
-  let text;
-  if(i > 0) {
-    text = params.splice(0, i).join(' ');
-  } else if(i == 0) {
-    text = '';
-  } else {
-    text = params.splice(0).join(' ');
-  }
-  
-  let options = { unsupported: [] };
-  
-  while(params.length) {
-    let key = params.shift();
-    let val;
-    
-    if(params.length) {
-      let i = params.findIndex((p) => regexp.test(p));
-      
-      if(i < 0) {
-        val = params.splice(0).join(' ');
-      } else if(i == 0) {
-        val = true;
-      } else {
-        val = params.splice(0, i).join(' ');
-      }
+  for(let flag of flags) {
+    if(opts[flag.flagName]) {
+      options[opts[flag.flagName]] = flag.flagValue || true;
     } else {
-      val = true;
-    }
-    
-    if(opts[key]) {
-      options[opts[key]] = val;
-    } else {
-      options.unsupported.push(key);
+      options.unsupported = options.unsupported || [];
+      options.unsupported.push(flag.flagName);
     }
   }
-
-  return [text, options];
+  
+  return options;
 }
 
 function handleSet(title, options, msg) {
