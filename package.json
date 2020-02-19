@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jest",
+    "debug": "token=$token profile=debug node index.js"
   },
   "keywords": [],
   "author": "",
@@ -13,5 +14,8 @@
     "discord.js": "^11.5.1",
     "mysql": "^2.18.1",
     "uuid": "^3.4.0"
+  },
+  "devDependencies": {
+    "jest": "^25.1.0"
   }
 }
