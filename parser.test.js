@@ -63,34 +63,6 @@ add the 3ds friend code, IGN: Britany
 
       expect(actual).toEqual(expected);
     });
-    
-    test('set long title', () => {
-      let cmd = `!host set \`\`\`Rolling Den 92 - Square Non-HA G-Max Orbeetle's
-Notable entrants: 1speed Square Karrablast
-Hosting on Lynda-Switch-4752-8741-7021\`\`\`
-\`\`\`code will mostly be 2221 or 2211\`\`\``;
-      
-      let expected = [
-        {
-          prefix: '!host',
-          cmd: 'set',
-          _: '\`\`\`Rolling Den 92 - Square Non-HA G-Max\`\`\`',
-        },
-        [
-          {
-            flagName: '-d',
-            flagValue: `\`\`\`Orbeetle's
-Notable entrants: 1speed Square Karrablast
-Hosting on Lynda-Switch-4752-8741-7021\`\`\`
-\`\`\`code will mostly be 2221 or 2211\`\`\``
-          }
-        ]
-      ];
-      
-      let actual = cleanObject(parseCommand(cmd));
-
-      expect(actual).toEqual(expected);
-    });
   });
 
   describe('parseFlags', () => {
