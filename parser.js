@@ -7,7 +7,7 @@ function parseCommand(text, opts) {
     console.log(`${arguments.callee.name}(${util.inspect(Array.from(arguments).slice(0, -1), {depth: 2, colors: true})}, ${text})`);
   }
   
-  let regexp = /^(?<prefix>!\w+)(?:\s+(?<test>test))?(?:\s+(?<mod>mod))?(?:\s+(?<dev>dev))?(?:\s+(?<cmd>\w+))?(?:(?!\s-)\s(?<_>(?:(?!\s--?\w).)+))?|\s(?<flagName>-\w|--\w+)(?:\s(?<flagValue>(?:(?!\s--?\w).)+))?(?=\s--?\w|$)/sg;
+  let regexp = /^(?<prefix>!\w+)(?:\s+(?<test>test))?(?:\s+(?<mod>mod))?(?:\s+(?<dev>dev))?(?:\s+(?<cmd>\w+))?(?:(?!\s+-)\s+(?<_>(?:(?!\s+--?\w).)+))?|\s+(?<flagName>-\w|--\w+)(?:\s+(?<flagValue>(?:(?!\s+--?\w).)+))?(?=\s+--?\w|$)/sg;
   
   let matches = text.matchAll(regexp);
   let [...captures] = matches;
