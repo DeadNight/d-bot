@@ -11,7 +11,7 @@ describe('parseCommand', () => {
       []
     ];
 
-    let actual = cleanObject(parseCommand(cmd));
+    let actual = parseCommand(cmd);
 
     expect(actual).toEqual(expected);
   });
@@ -41,7 +41,7 @@ add the 3ds friend code, IGN: Britany
       ]
     ];
 
-    let actual = cleanObject(parseCommand(cmd));
+    let actual = parseCommand(cmd);
 
     expect(actual).toEqual(expected);
   });
@@ -73,7 +73,7 @@ add the 3ds friend code, IGN: Britany
       ]
     ];
 
-    let actual = cleanObject(parseCommand(cmd));
+    let actual = parseCommand(cmd);
 
     expect(actual).toEqual(expected);
   });
@@ -97,23 +97,15 @@ describe('parseFlags', () => {
       description: '```asciidoc\nrapidash\nadd the 3ds friend code, IGN: Britany\n```'
     };
 
-    let actual = cleanObject(parseFlags(flags, {
+    let actual = parseFlags(flags, {
       '-a': 'account',
       '--account': 'account',
       '-c': 'code',
       '--code': 'code',
       '-d': 'description',
       '--description': 'description'
-    }));
+    });
 
     expect(actual).toEqual(expected);
   });
 });
-
-function cleanObject(obj) {
-//   Object.keys(obj).forEach(key => {
-//     if(obj[key] === 'undefined')
-//       delete obj[key]
-//   });
-  return obj;
-}
