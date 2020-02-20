@@ -38,7 +38,7 @@ function parseFlags(flags, opts) {
 }
 
 function fixCodeBlocks(title, description) {
-  let regexp = /\s+```(\w*\)s+/g;
+  let regexp = /\s+```(\w*)\s+/g;
   let replacement = '\n```$1\n';
   
   title = title.replace(regexp, replacement);
