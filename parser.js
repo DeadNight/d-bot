@@ -68,7 +68,7 @@ function autoSplit(title, description, softCap, hardCap) {
     description = title.slice(i + 1) + (description || '');
     title = title.slice(0, i);
     
-    if(/(?:^|\s+)```(?:\s+|$)/.test(description)) {
+    if(/^\s*```\s*$/.test(description)) {
       description = '';
     }
     
