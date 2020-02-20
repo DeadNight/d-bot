@@ -240,6 +240,8 @@ function handleSet(title, options, msg) {
   options.code = options.code || 'none';
   options.description = options.description || '';
   
+  [title, options.description] = parser.fixCodeBlocks(title, options.description);
+  
   let newTitle;
   [newTitle, options.description] = Parser.autoSplit(title, options.description, 50, 255);
   
