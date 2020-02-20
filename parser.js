@@ -58,7 +58,7 @@ function fixCodeBlocks(title, description) {
 function autoSplit(title, description, softCap, hardCap) {
   let squashedTitle = title.replace(/<:\w+:\d+>/gi, 'E');
   
-  if(title > 255 || squashedTitle.length > 50) {
+  if(title.length > 255 || squashedTitle.length > 50) {
     let numOriginWhitespaces = (title.slice(0, 255).match(/\s/g) || []).length;
     let numSquashedWhitespaces = (squashedTitle.slice(0, 50).match(/\s/g) || []).length;
     let numWhitespaces = Math.min(numOriginWhitespaces, numSquashedWhitespaces);
