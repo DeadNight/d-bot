@@ -81,5 +81,6 @@ function autoSplit(title, description, softCap, hardCap) {
 module.exports = {
   parseCommand: parseCommand,
   parseFlags: parseFlags,
+  fixCodeBlocks: fixCodeBlocks,
   autoSplit: autoSplit
 };
