@@ -37,7 +37,31 @@ function parseFlags(flags, opts) {
   return options;
 }
 
+function autoSplit(title, description, softCap, hardCap) {
+  let squashedTitle = title.replace(/<:\w+:\d+>/gi, 'E');
+  if(title > 255 || squashedTitle.length > 50) {    
+    let numWhitespaces = (squashedTitle.slice(0, 50).match(/\s/g) || []).length;
+    let i = (title.match(`^\\S*(?:\\s+\\S+){${numWhitespaces - 1}}`) || [''])[0].length;
+    
+    description = title.slice(i + 1) + (description || '');
+    title = title.slice(0, i);
+    
+    if((title.match(/```/g) || []).length % 2) {
+      title += '```';
+    }
+    
+    if(description == '```') {
+      description = '';
+    } else if((description.match(/```/g) || []).length % 2) {
+      description = '```' + description;
+    }
+  }
+  
+  return [title, description];
+}
+
 module.exports = {
   parseCommand: parseCommand,
   parseFlags: parseFlags
+  autoSplit: autoSplit
 };
