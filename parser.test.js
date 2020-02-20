@@ -1,4 +1,4 @@
-const { parseCommand, parseFlags } = require('./parser.js');
+const parser = require('./parser.js');
 
 describe('parseCommand', () => {
   test('empty cmd', () => {
@@ -11,7 +11,7 @@ describe('parseCommand', () => {
       []
     ];
 
-    let actual = parseCommand(cmd);
+    let actual = parser.parseCommand(cmd);
 
     expect(actual).toEqual(expected);
   });
@@ -26,7 +26,7 @@ describe('parseCommand', () => {
       []
     ];
 
-    let actual = parseCommand(cmd);
+    let actual = parser.parseCommand(cmd);
 
     expect(actual).toEqual(expected);
   });
@@ -56,7 +56,7 @@ add the 3ds friend code, IGN: Britany
       ]
     ];
 
-    let actual = parseCommand(cmd);
+    let actual = parser.parseCommand(cmd);
 
     expect(actual).toEqual(expected);
   });
@@ -88,7 +88,7 @@ add the 3ds friend code, IGN: Britany
       ]
     ];
 
-    let actual = parseCommand(cmd);
+    let actual = parser.parseCommand(cmd);
 
     expect(actual).toEqual(expected);
   });
@@ -120,7 +120,7 @@ add the 3ds friend code, IGN: Britany
       ]
     ];
 
-    let actual = parseCommand(cmd);
+    let actual = parser.parseCommand(cmd);
 
     expect(actual).toEqual(expected);
   });
@@ -144,7 +144,7 @@ describe('parseFlags', () => {
       description: '```asciidoc\nrapidash\nadd the 3ds friend code, IGN: Britany\n```'
     };
 
-    let actual = parseFlags(flags, {
+    let actual = parser.parseFlags(flags, {
       '-a': 'account',
       '--account': 'account',
       '-c': 'code',
@@ -155,4 +155,21 @@ describe('parseFlags', () => {
 
     expect(actual).toEqual(expected);
   });
+});
+
+describe('autoSplit', () => {
+  test('empty after split', () => {
+    let title = `!h start \`\`\`md
+Square
+Hawlucha
+<Limber>
+27/31/31/31/31/26
+\`\`\``
+  });
+  
+  let expected = [title, ''];
+  
+  let actual = parser.autoSplit(title, '', 50, 255);
+  
+  expect(actual).toEqual(expected);
 });
