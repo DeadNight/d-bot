@@ -158,7 +158,7 @@ describe('parseFlags', () => {
 });
 
 describe('autoSplit', () => {
-  test('empty after split', () => {
+  test('split code block', () => {
     let title = `!h start
 \`\`\`md
 Square
@@ -167,12 +167,36 @@ Hawlucha
 27/31/31/31/31/26
 \`\`\``;
   
+  let expected = [
+    `!h start
+\`\`\`md
+Square
+Hawlucha
+<Limber>
+27/31/31/31/31/26`,
+    ''
+  ];
+  
+  let actual = parser.autoSplit(title, '', 50, 255);
+  
+  expect(actual).toEqual(expected);
+  });
+  
+  test('empty partial code block after split', () => {
+    let title = `!h start
+\`\`\`md
+Square
+Hawlucha
+<Limber>
+\`\`\``;
+  
   let expected = [title, ''];
   
   let actual = parser.autoSplit(title, '', 50, 255);
   
   expect(actual).toEqual(expected);
   });
+  
   test('empty after split', () => {
     let title = '<:totolol:669700012900483119> <:totolol:669700012900483119> <:totolol:669700012900483119> <:totolol:669700012900483119> <:totolol:669700012900483119> <:totolol:669700012900483119> <:totolol:669700012900483119> <:totolol:669700012900483119> <:totolol:669700012900483119> <:totolol:669700012900483119> <:totolol:669700012900483119> <:totolol:669700012900483119> <:totolol:669700012900483119> <:totolol:669700012900483119> <:totolol:669700012900483119> <:totolol:669700012900483119> <:totolol:669700012900483119> <:totolol:669700012900483119> <:totolol:669700012900483119> <:totolol:669700012900483119> <:totolol:669700012900483119> <:totolol:669700012900483119> <:totolol:669700012900483119> <:totolol:669700012900483119> <:totolol:669700012900483119> <:totolol:669700012900483119> <:totolol:669700012900483119> <:totolol:669700012900483119> <:totolol:669700012900483119> <:totolol:669700012900483119>';
   
