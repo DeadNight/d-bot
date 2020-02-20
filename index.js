@@ -2,7 +2,7 @@ const Discord = require('discord.js');
 const mysql = require('mysql');
 const uuidv4 = require('uuid/v4');
 const util = require('util');
-const { parseCommand, parseFlags } = require('./parser.js');
+const parser = require('./parser.js');
 const help = require('./help.js');
 
 const client = new Discord.Client();
@@ -30,7 +30,7 @@ client.on('message', msg => {
     return;
   }
   
-  let [cmd, flags] = parseCommand(msg.content);  
+  let [cmd, flags] = parser.parseCommand(msg.content);  
 
   if(cmd.prefix !== '!h' && cmd.prefix !== '!host') {
     return;
@@ -96,7 +96,7 @@ function handleCommand(cmd, flags, msg) {
     case 'set':
     case 'start':
       {
-        let options = parseFlags(flags, {
+        let options = parser.parseFlags(flags, {
           '-a': 'account',
           '--account': 'account',
           '-c': 'code',
@@ -116,7 +116,7 @@ function handleCommand(cmd, flags, msg) {
     case 'u':
     case 'up':
       {
-        let options = parseFlags(flags, {
+        let options = parser.parseFlags(flags, {
           '-a': 'account',
           '--account': 'account',
           '-c': 'code',
@@ -136,7 +136,7 @@ function handleCommand(cmd, flags, msg) {
     case 'end':
     case 'stop':
       {
-        let options = parseFlags(flags, {
+        let options = parser.parseFlags(flags, {
           '-a': 'account',
           '--account': 'account',
           '--all': 'all'
@@ -153,7 +153,7 @@ function handleCommand(cmd, flags, msg) {
     case 'l':
     case 'list':
       {
-        let options = parseFlags(flags, {
+        let options = parser.parseFlags(flags, {
           '-m': 'member',
           '--member': 'member',
           '--all': 'all'
@@ -240,25 +240,14 @@ function handleSet(title, options, msg) {
   options.code = options.code || 'none';
   options.description = options.description || '';
   
-  let squashedTitle = title.replace(/<:\w+:\d+>/gi, 'E');
-  if(title > 255 || squashedTitle.length > 50) {
-    reply('title is longer than 50 characters, it will be split automatically\nTo split manually, please use the *-d* option. For more info, please type `!host help set`', msg);
-    
-    let numWhitespaces = (squashedTitle.slice(0, 50).match(/\s/g) || []).length;
-    let i = (title.match(`^\\S*(?:\\s+\\S+){${numWhitespaces - 1}}`) || [''])[0].length;
-    
-    options.description = title.slice(i + 1) + (options.description || '');
-    title = title.slice(0, i);
-    
-    if((title.match(/```/g) || []).length % 2) {
-      title += '```';
-    }
-    
-    if(options.description == '```') {
-      options.description = '';
-    } else if((options.description.match(/```/g) || []).length % 2) {
-      options.description = '```' + options.description;
-    }
+  [title, options.description] = parser.fixCodeBlocks(title, options.description);
+  
+  let newTitle;
+  [newTitle, options.description] = Parser.autoSplit(title, options.description, 50, 255);
+  
+  if(title !== newTitle) {
+    reply('title is longer than 50 characters, so it was split automatically\nIf the auto split isn\'t good enough, you may split manually with the -d option\nFor more info, type `!host help set`', msg);
+    title = newTitle;
   }
     
   setHostData(msg.member, options.account, title, options.code, options.description).then((hostData) => {

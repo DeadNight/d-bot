@@ -37,7 +37,50 @@ function parseFlags(flags, opts) {
   return options;
 }
 
+function fixCodeBlocks(title, description) {
+  let regexp = /\s+```(\w*)\s+/g;
+  let replacement = '\n```$1\n';
+  
+  title = title.replace(regexp, replacement);
+  description = description.replace(regexp, replacement);
+  
+  if((title.match(/```/g) || []).length % 2) {
+    title += '```';
+  }
+  
+  if((description.match(/```/g) || []).length % 2) {
+    description = '```' + description;
+  }
+  
+  return [title, description];
+}
+
+function autoSplit(title, description, softCap, hardCap) {
+  let squashedTitle = title.replace(/<:\w+:\d+>/gi, 'E');
+  
+  if(title.length > 255 || squashedTitle.length > 50) {
+    let numOriginWhitespaces = (title.slice(0, 255).match(/\s/g) || []).length;
+    let numSquashedWhitespaces = (squashedTitle.slice(0, 50).match(/\s/g) || []).length;
+    let numWhitespaces = Math.min(numOriginWhitespaces, numSquashedWhitespaces);
+    
+    let i = (title.match(`^\\S*(?:\\s+\\S+){${numWhitespaces - 1}}`) || [''])[0].length;
+    
+    description = title.slice(i + 1) + (description || '');
+    title = title.slice(0, i);
+    
+    if(/^\s*```\s*$/.test(description)) {
+      description = '';
+    }
+    
+    [title, description] = fixCodeBlocks(title, description)
+  }
+  
+  return [title, description];
+}
+
 module.exports = {
   parseCommand: parseCommand,
-  parseFlags: parseFlags
+  parseFlags: parseFlags,
+  fixCodeBlocks: fixCodeBlocks,
+  autoSplit: autoSplit
 };
