@@ -159,7 +159,8 @@ describe('parseFlags', () => {
 
 describe('autoSplit', () => {
   test('empty after split', () => {
-    let title = `!h start \`\`\`md
+    let title = `!h start
+\`\`\`md
 Square
 Hawlucha
 <Limber>
