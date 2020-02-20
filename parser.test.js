@@ -172,9 +172,8 @@ Hawlucha
 \`\`\`md
 Square
 Hawlucha
-<Limber>
-\`\`\``,
-    '```27/31/31/31/31/26```'
+<Limber>\`\`\``,
+    '```27/31/31/31/31/26\n```'
   ];
   
   let actual = parser.autoSplit(title, '', 50, 255);
