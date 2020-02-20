@@ -173,8 +173,8 @@ Hawlucha
 Square
 Hawlucha
 <Limber>
-27/31/31/31/31/26`,
-    ''
+\`\`\``,
+    '```27/31/31/31/31/26```'
   ];
   
   let actual = parser.autoSplit(title, '', 50, 255);
