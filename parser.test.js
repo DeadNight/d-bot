@@ -165,11 +165,11 @@ Hawlucha
 <Limber>
 27/31/31/31/31/26
 \`\`\``
-  });
   
   let expected = [title, ''];
   
   let actual = parser.autoSplit(title, '', 50, 255);
   
   expect(actual).toEqual(expected);
+  });
 });
