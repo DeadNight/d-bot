@@ -159,21 +159,21 @@ describe('parseFlags', () => {
 
 describe('autoSplit', () => {
   test('split code block', () => {
-    let title = `!h start
-\`\`\`md
+    let title = `\`\`\`md
 Square
 Hawlucha
 <Limber>
 27/31/31/31/31/26
+Ends today
 \`\`\``;
   
   let expected = [
-    `!h start
-\`\`\`md
+    `\`\`\`md
 Square
 Hawlucha
-<Limber>\`\`\``,
-    '```27/31/31/31/31/26\n```'
+<Limber>
+27/31/31/31/31/26\`\`\``,
+    '```Ends today\n```'
   ];
   
   let actual = parser.autoSplit(title, '', 50, 255);
@@ -182,21 +182,27 @@ Hawlucha
   });
   
   test('empty partial code block after split', () => {
-    let title = `!h start
-\`\`\`md
+    let title = `\`\`\`md
 Square
 Hawlucha
 <Limber>
+27/31/31/31/31/26
 \`\`\``;
   
-  let expected = [title, ''];
+  let expected = [
+    `\`\`\`md
+Square
+Hawlucha
+<Limber>
+27/31/31/31/31/26\`\`\``,
+    ''];
   
   let actual = parser.autoSplit(title, '', 50, 255);
   
   expect(actual).toEqual(expected);
   });
   
-  test('empty after split', () => {
+  test('auto split emoji', () => {
     let title = '<:totolol:669700012900483119> <:totolol:669700012900483119> <:totolol:669700012900483119> <:totolol:669700012900483119> <:totolol:669700012900483119> <:totolol:669700012900483119> <:totolol:669700012900483119> <:totolol:669700012900483119> <:totolol:669700012900483119> <:totolol:669700012900483119> <:totolol:669700012900483119> <:totolol:669700012900483119> <:totolol:669700012900483119> <:totolol:669700012900483119> <:totolol:669700012900483119> <:totolol:669700012900483119> <:totolol:669700012900483119> <:totolol:669700012900483119> <:totolol:669700012900483119> <:totolol:669700012900483119> <:totolol:669700012900483119> <:totolol:669700012900483119> <:totolol:669700012900483119> <:totolol:669700012900483119> <:totolol:669700012900483119> <:totolol:669700012900483119> <:totolol:669700012900483119> <:totolol:669700012900483119> <:totolol:669700012900483119> <:totolol:669700012900483119>';
   
   let expected = [
