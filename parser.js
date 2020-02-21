@@ -4,7 +4,7 @@ const profile = process.env.profile || 'dev';
 
 function parseCommand(text, opts) {
   if(profile === 'debug') {
-    console.log(`${arguments.callee.name}(${util.inspect(Array.from(arguments).slice(0, -1), {depth: 2, colors: true})}, ${text})`);
+    console.log(`${arguments.callee.name}(${util.inspect(Array.from(arguments), {depth: 2, colors: true})})`);
   }
   
   let regexp = /^(?<prefix>!\w+)(?:\s+(?<test>test))?(?:\s+(?<mod>mod))?(?:\s+(?<dev>dev))?(?:\s+(?<cmd>\w+))?(?:(?!\s+-)\s+(?<_>(?:(?!\s+--?\w).)+))?|\s+(?<flagName>-\w|--\w+)(?:\s+(?<flagValue>(?:(?!\s+--?\w).)+))?(?=\s+--?\w|$)/sg;
@@ -38,6 +38,10 @@ function parseFlags(flags, opts) {
 }
 
 function fixCodeBlocks(title, description) {
+  if(profile === 'debug') {
+    console.log(`${arguments.callee.name}(${util.inspect(Array.from(arguments), {depth: 2, colors: true})})`);
+  }
+
   let regexp = /\s+```(\w*)\s+/g;
   let replacement = '\n```$1\n';
   
@@ -56,6 +60,10 @@ function fixCodeBlocks(title, description) {
 }
 
 function autoSplit(title, description, softCap, hardCap) {
+  if(profile === 'debug') {
+    console.log(`${arguments.callee.name}(${util.inspect(Array.from(arguments), {depth: 2, colors: true})})`);
+  }
+
   let squashedTitle = title.replace(/<:\w+:\d+>/gi, 'E');
   
   if(title.length > 255 || squashedTitle.length > 50) {

@@ -244,8 +244,8 @@ function handleSet(title, options, msg) {
   
   let newTitle;
   [newTitle, options.description] = parser.autoSplit(title, options.description, 50, 255);
-  
-  if(title !== newTitle) {
+
+  if(title.replace(/^\s*```\s*|\s*```\s*$/g, '') !== newTitle.replace(/^\s*```\s*|\s*```\s*$/g, '')) {
     reply('title is longer than 50 characters, so it was split automatically\nIf the auto split isn\'t good enough, you may split manually with the -d option\nFor more info, type `!host help set`', msg);
     title = newTitle;
   }
