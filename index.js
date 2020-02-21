@@ -243,7 +243,7 @@ function handleSet(title, options, msg) {
   [title, options.description] = parser.fixCodeBlocks(title, options.description);
   
   let newTitle;
-  [newTitle, options.description] = Parser.autoSplit(title, options.description, 50, 255);
+  [newTitle, options.description] = parser.autoSplit(title, options.description, 50, 255);
   
   if(title !== newTitle) {
     reply('title is longer than 50 characters, so it was split automatically\nIf the auto split isn\'t good enough, you may split manually with the -d option\nFor more info, type `!host help set`', msg);
