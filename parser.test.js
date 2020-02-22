@@ -124,6 +124,38 @@ add the 3ds friend code, IGN: Britany
 
     expect(actual).toEqual(expected);
   });
+  
+  test('code block mid description', () => {
+    let cmd = `!h start Nothing -d <:acremiesmile:669593155531833369>  \`\`\`diff
+- 🌟🎂Gigantamax Alcremie (Rainbow Swirl)
+*** Sweet Veil | 4iv -atk -spatk | Female | Bold
++ Code: None
+--- SW-0070-2882-5533 (tell me your switch name if you add me)
+\`\`\``;
+    
+    let expected = [
+      {
+        prefix: '!h',
+        cmd: 'start',
+        _: 'Nothing',
+      },
+      [
+        {
+          flagName: '-d',
+          flagValue: `<:acremiesmile:669593155531833369>  \`\`\`diff
+- 🌟🎂Gigantamax Alcremie (Rainbow Swirl)
+*** Sweet Veil | 4iv -atk -spatk | Female | Bold
++ Code: None
+--- SW-0070-2882-5533 (tell me your switch name if you add me)
+\`\`\``
+        }
+      ]
+    ];
+
+    let actual = parser.parseCommand(cmd);
+
+    expect(actual).toEqual(expected);
+  });
 });
 
 describe('parseFlags', () => {
